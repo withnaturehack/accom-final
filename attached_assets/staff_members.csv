@@ -1,0 +1,11 @@
+name,email,rollNumber,phone,role,hostelName,area,password
+Dr. Ramesh Babu,ramesh.babu@iitm.ac.in,25f20000001,9876543210,admin,Hostel Gurunath,Administration,Admin@123
+Dr. Meena Iyer,meena.iyer@iitm.ac.in,25f20000002,9876543211,admin,Hostel Godavari,Administration,Admin@123
+Arun Kumar,arun.kumar@iitm.ac.in,25f20000003,9876543212,coordinator,Hostel Gurunath,Operations,Coord@123
+Priya Singh,priya.singh@iitm.ac.in,25f20000004,9876543213,coordinator,Hostel Godavari,Operations,Coord@123
+Rajesh Patel,rajesh.patel@iitm.ac.in,25f20000005,9876543214,volunteer,Hostel Gurunath,Hostel Operations,Vol@123
+Sunita Verma,sunita.verma@iitm.ac.in,25f20000006,9876543215,volunteer,Hostel Godavari,Hostel Operations,Vol@123
+Vikram Reddy,vikram.reddy@iitm.ac.in,25f20000007,9876543216,volunteer,Hostel Gurunath,Maintenance,Vol@123
+Anjali Nair,anjali.nair@iitm.ac.in,25f20000008,9876543217,volunteer,Hostel Godavari,Support,Vol@123
+Sanjay Mishra,sanjay.mishra@iitm.ac.in,25f20000009,9876543218,admin,Hostel Gurunath,Finance,Admin@123
+Kavya Joshi,kavya.joshi@iitm.ac.in,25f20000010,9876543219,coordinator,Hostel Gurunath,Communication,Coord@123

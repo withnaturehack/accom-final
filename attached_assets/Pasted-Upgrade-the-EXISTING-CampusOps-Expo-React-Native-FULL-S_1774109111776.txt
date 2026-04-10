@@ -1,0 +1,312 @@
+Upgrade the EXISTING CampusOps Expo React Native FULL-STACK application.
+
+This is NOT a new build.
+This is a PRODUCTION-GRADE UPGRADE.
+
+Do NOT break existing working features.
+Do NOT introduce lag.
+Do NOT create dummy UI.
+
+System must handle HIGH LOAD (10K–50K users) with ZERO CRASH, ZERO LAG, and STABLE APIs.
+
+---
+
+❌ REMOVE FEATURES COMPLETELY
+
+- Remove Discipline System (frontend + backend + DB)
+- Remove Mess Card System completely
+
+---
+
+✅ ADD NEW SYSTEM (REPLACING MESS CARD)
+
+🍽️ MESS ASSIGNMENT + ATTENDANCE SYSTEM
+
+Each student must have:
+- assignedMess
+- attendanceStatus
+
+Area Coordinator can:
+- View mess-wise student distribution
+- Monitor attendance trends
+- Analyze mess load
+
+---
+
+👑 ROLE SYSTEM (UPGRADE, DO NOT BREAK)
+
+SUPER ADMIN:
+- Full access (no restriction)
+- Can:
+  - Create/Edit/Delete users
+  - Assign hostels, rooms, mess
+  - Modify inventory fields (default = 3)
+  - Access MASTER TABLE
+  - View ALL logs
+  - Override any action
+
+AREA COORDINATOR:
+- Assigned 2–3 hostels
+- Can:
+  - View students
+  - View mess + attendance
+  - Monitor logs
+  - Manage inventory
+  - Search students
+
+VOLUNTEER:
+- Assigned to ONE hostel
+
+Features:
+- Active / Inactive toggle
+- Auto inactive after 10 min idle
+
+Permissions:
+- View hostel students
+- Mark attendance (checkbox)
+- Update inventory
+- Search students
+
+STUDENT:
+- View:
+  - Hostel
+  - Room
+  - Mess
+  - Contacts (Volunteer + Coordinator)
+  - Attendance status
+  - Inventory status
+
+Emergency Flow:
+Student → Volunteer → Coordinator → Super Admin
+
+---
+
+🏠 HOSTEL + ROOM + DATA STRUCTURE (EXTEND ONLY)
+
+DO NOT REMOVE EXISTING DATA → ONLY ADD:
+
+Student:
++ roomNumber
++ assignedMess
++ contactNumber (MANDATORY)
++ attendanceStatus
+
+Hostel:
++ rooms[]
++ messes[]
+
+Room Logic:
+- One room = multiple students
+
+---
+
+📦 INVENTORY SYSTEM (STRICT RULE)
+
+ONLY 3 FIELDS:
+
+- mattress
+- bedsheet
+- pillow
+
+Table UI:
+
+| Name | Contact | Mattress | Bedsheet | Pillow |
+
+Logic:
+- Checkbox = item given
+- Store:
+  - updatedBy
+  - timestamp
+
+---
+
+✅ ATTENDANCE SYSTEM (VOLUNTEER PANEL)
+
+Table UI:
+
+| Name | Room | Mess | Status |
+
+- ⬜ Not Entered
+- ✅ Entered
+
+On click:
+- Save:
+  - studentId
+  - volunteerId
+  - timestamp
+
+Must trigger REAL-TIME update
+
+---
+
+⏱️ TIME LOG SYSTEM (NO SERVER PRESSURE)
+
+Track:
+- loginTime
+- logoutTime
+- lastActivity
+
+Logic:
+- If idle > 10 min → mark INACTIVE
+- Add remark: "Idle"
+
+IMPORTANT:
+- DO NOT spam DB
+- Use:
+  - throttling OR
+  - batch updates
+
+Super Admin Dashboard:
+- Active users
+- Inactive users
+- Last activity time
+
+---
+
+🔍 GLOBAL SEARCH (HIGH PERFORMANCE)
+
+Search ANYTHING:
+
+- name
+- email
+- hostel
+- room
+- mess
+- volunteer
+- coordinator
+
+Return FULL DATA:
+
+- student info
+- hostel
+- room
+- mess
+- attendance
+- inventory
+- logs
+- assigned staff
+
+Must be:
+- Indexed
+- Debounced (300ms)
+- Fast (<300ms response)
+
+---
+
+📊 MASTER TABLE (ADVANCED)
+
+Contains:
+
+- Students
+- Hostels
+- Rooms
+- Mess
+- Inventory
+- Attendance
+- Logs
+
+Features:
+- Search bar
+- Filters (hostel, mess, status)
+- Sorting
+- Pagination
+- Expandable rows (show full details)
+
+---
+
+📥 REPORT SYSTEM
+
+Export:
+
+- CSV
+- Excel
+
+Includes:
+- Student data
+- Attendance
+- Inventory
+- Logs
+- Mess data
+
+---
+
+🔄 REAL-TIME SYSTEM (STRICT)
+
+Use Socket.IO
+
+Events:
+- attendance update
+- inventory update
+- user activity
+
+IMPORTANT:
+- Emit only to relevant roles (avoid overload)
+- Avoid unnecessary broadcasts
+
+---
+
+⚡ PERFORMANCE (ZERO LAG ARCHITECTURE)
+
+System must handle HIGH LOAD smoothly.
+
+Backend:
+- Add indexes:
+  - name
+  - email
+  - hostelId
+- Use `.lean()` queries
+- Avoid heavy joins
+- Use caching (if needed)
+
+Frontend:
+- Use FlatList (optimized)
+- Use pagination
+- Use memoization
+- Avoid unnecessary re-renders
+
+---
+
+🛡️ BACKEND STABILITY (VERY IMPORTANT)
+
+- Add RBAC middleware
+- Add request validation (Joi/Zod)
+- Add rate limiting
+- Add centralized error handling
+
+Ensure:
+- APIs never crash under load
+- No blocking operations
+- Graceful error responses
+
+---
+
+📱 FRONTEND IMPROVEMENTS
+
+- Table-based UI everywhere
+- Add loading states
+- Add empty states
+- Smooth transitions
+- Fast navigation
+
+---
+
+🚫 STRICT RULES
+
+- Do NOT break existing APIs
+- Do NOT create fake features
+- Do NOT allow role leakage
+- Do NOT degrade performance
+
+---
+
+🏆 FINAL GOAL
+
+The upgraded system must feel:
+
+⚡ Instant (no lag)
+🎨 Clean UI
+📊 Data-rich
+🔄 Real-time synced
+🛡️ Stable under heavy load
+
+System must work perfectly even under HIGH PRESSURE usage.

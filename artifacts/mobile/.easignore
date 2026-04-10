@@ -1,0 +1,23 @@
+# Keep EAS upload small and deterministic
+node_modules
+.expo
+.expo-shared
+
+# Build/cache outputs
+dist
+build
+coverage
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode
+.idea
+
+# Local env secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

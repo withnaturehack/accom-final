@@ -1,0 +1,4 @@
+version: "3"
+update_channel: stable
+agent:
+  authtoken: 35VuPBFuR6wIhiMEr7eSF6dqQSF_sLj5QK2wGjqYNHFffwJ8

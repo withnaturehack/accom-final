@@ -1,0 +1,47 @@
+import { Router, type IRouter } from "express";
+import healthRouter from "./health.js";
+import authRouter from "./auth.js";
+import studentsRouter from "./students.js";
+import hostelsRouter from "./hostels.js";
+import contactsRouter from "./contacts.js";
+import lostitemsRouter from "./lostitems.js";
+import announcementsRouter from "./announcements.js";
+import notificationsRouter from "./notifications.js";
+import reportsRouter from "./reports.js";
+import timelogsRouter from "./timelogs.js";
+import attendanceRouter from "./attendance.js";
+import inventorySimpleRouter from "./inventory-simple.js";
+import searchRouter from "./search.js";
+import exportRouter from "./export.js";
+import staffRouter from "./staff.js";
+import importRouter from "./import.js";
+import pdfExportRouter from "./pdf-export.js";
+import checkinsRouter from "./checkins.js";
+import messAttendanceRouter from "./mess-attendance.js";
+import approvalsRouter from "./approvals.js";
+
+const router: IRouter = Router();
+
+router.use(healthRouter);
+router.use("/auth", authRouter);
+router.use("/students", studentsRouter);
+router.use("/hostels", hostelsRouter);
+router.use("/hostel/contacts", contactsRouter);
+router.use("/lostitems", lostitemsRouter);
+router.use("/announcements", announcementsRouter);
+router.use("/notifications", notificationsRouter);
+router.use("/reports", reportsRouter);
+router.use("/admin", reportsRouter);
+router.use("/timelogs", timelogsRouter);
+router.use("/attendance", attendanceRouter);
+router.use("/inventory-simple", inventorySimpleRouter);
+router.use("/search", searchRouter);
+router.use("/export", exportRouter);
+router.use("/staff", staffRouter);
+router.use("/import", importRouter);
+router.use("/pdf", pdfExportRouter);
+router.use("/checkins", checkinsRouter);
+router.use("/mess-attendance", messAttendanceRouter);
+router.use("/approvals", approvalsRouter);
+
+export default router;

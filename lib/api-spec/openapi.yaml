@@ -1,0 +1,1184 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: CampusOps Expo API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: students
+    description: Student management
+  - name: hostels
+    description: Hostel management
+  - name: messcards
+    description: Mess card management
+  - name: lostitems
+    description: Lost & Found management
+  - name: announcements
+    description: Announcements management
+  - name: notifications
+    description: Notifications
+  - name: discipline
+    description: Discipline logs
+  - name: reports
+    description: Reports (Super Admin)
+  - name: qr
+    description: QR scanning
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register student
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: Registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /students:
+    get:
+      operationId: getStudents
+      tags: [students]
+      summary: Get all students (Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StudentProfile"
+    post:
+      operationId: createStudent
+      tags: [students]
+      summary: Create student (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStudentRequest"
+      responses:
+        "201":
+          description: Student created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+
+  /students/{id}:
+    get:
+      operationId: getStudentById
+      tags: [students]
+      summary: Get student by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Student profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+
+  /hostels:
+    get:
+      operationId: getHostels
+      tags: [hostels]
+      summary: Get all hostels
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of hostels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Hostel"
+    post:
+      operationId: createHostel
+      tags: [hostels]
+      summary: Create hostel (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateHostelRequest"
+      responses:
+        "201":
+          description: Hostel created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hostel"
+
+  /hostels/{id}:
+    get:
+      operationId: getHostelById
+      tags: [hostels]
+      summary: Get hostel by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Hostel
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Hostel"
+
+  /messcards/my:
+    get:
+      operationId: getMyMessCard
+      tags: [messcards]
+      summary: Get my mess card
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Mess card
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessCard"
+
+  /messcards:
+    get:
+      operationId: getMessCards
+      tags: [messcards]
+      summary: Get all mess cards (Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of mess cards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MessCard"
+    post:
+      operationId: generateMessCard
+      tags: [messcards]
+      summary: Generate mess card for student (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateMessCardRequest"
+      responses:
+        "201":
+          description: Mess card generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessCard"
+
+  /qr/verify:
+    post:
+      operationId: verifyQR
+      tags: [qr]
+      summary: Verify QR code (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QRVerifyRequest"
+      responses:
+        "200":
+          description: QR verification result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QRVerifyResult"
+
+  /qr/logs:
+    get:
+      operationId: getQRLogs
+      tags: [qr]
+      summary: Get QR scan logs (Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of QR logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/QRLog"
+
+  /lostitems:
+    get:
+      operationId: getLostItems
+      tags: [lostitems]
+      summary: Get lost items
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of lost items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LostItem"
+    post:
+      operationId: createLostItem
+      tags: [lostitems]
+      summary: Create lost item report
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateLostItemRequest"
+      responses:
+        "201":
+          description: Lost item created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LostItem"
+
+  /lostitems/{id}:
+    get:
+      operationId: getLostItemById
+      tags: [lostitems]
+      summary: Get lost item by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lost item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LostItem"
+    patch:
+      operationId: updateLostItemStatus
+      tags: [lostitems]
+      summary: Update lost item status (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateLostItemRequest"
+      responses:
+        "200":
+          description: Updated lost item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LostItem"
+    delete:
+      operationId: deleteLostItem
+      tags: [lostitems]
+      summary: Delete lost item
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /announcements:
+    get:
+      operationId: getAnnouncements
+      tags: [announcements]
+      summary: Get announcements
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of announcements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Announcement"
+    post:
+      operationId: createAnnouncement
+      tags: [announcements]
+      summary: Create announcement (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAnnouncementRequest"
+      responses:
+        "201":
+          description: Announcement created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Announcement"
+
+  /announcements/{id}:
+    delete:
+      operationId: deleteAnnouncement
+      tags: [announcements]
+      summary: Delete announcement (Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /notifications:
+    get:
+      operationId: getNotifications
+      tags: [notifications]
+      summary: Get notifications for current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+
+  /notifications/{id}/read:
+    patch:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /discipline:
+    get:
+      operationId: getDisciplineLogs
+      tags: [discipline]
+      summary: Get discipline logs
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of discipline logs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DisciplineLog"
+    post:
+      operationId: createDisciplineLog
+      tags: [discipline]
+      summary: Create discipline log (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDisciplineLogRequest"
+      responses:
+        "201":
+          description: Discipline log created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DisciplineLog"
+
+  /reports/summary:
+    get:
+      operationId: getReportsSummary
+      tags: [reports]
+      summary: Get reports summary (Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Reports summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportsSummary"
+
+  /admin/users:
+    get:
+      operationId: getAdminUsers
+      tags: [reports]
+      summary: Get all admin users (Super Admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of admin users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserProfile"
+    post:
+      operationId: createAdminUser
+      tags: [reports]
+      summary: Create admin user (Super Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAdminRequest"
+      responses:
+        "201":
+          description: Admin created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+
+  /admin/users/{id}:
+    delete:
+      operationId: deleteAdminUser
+      tags: [reports]
+      summary: Delete admin user (Super Admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /hostel/contacts:
+    get:
+      operationId: getEmergencyContacts
+      tags: [hostels]
+      summary: Get emergency contacts for user's hostel
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of contacts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EmergencyContact"
+    post:
+      operationId: createEmergencyContact
+      tags: [hostels]
+      summary: Create emergency contact (Admin)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateContactRequest"
+      responses:
+        "201":
+          description: Contact created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EmergencyContact"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    RegisterRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        rollNumber:
+          type: string
+      required:
+        - name
+        - email
+        - password
+        - rollNumber
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/UserProfile"
+      required:
+        - token
+        - user
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [student, admin, superadmin]
+        rollNumber:
+          type: string
+        hostelId:
+          type: string
+        roomNumber:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - role
+
+    StudentProfile:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        rollNumber:
+          type: string
+        hostelId:
+          type: string
+        hostelName:
+          type: string
+        roomNumber:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - rollNumber
+
+    CreateStudentRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        rollNumber:
+          type: string
+        hostelId:
+          type: string
+        roomNumber:
+          type: string
+      required:
+        - name
+        - email
+        - password
+        - rollNumber
+
+    Hostel:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: string
+        totalRooms:
+          type: number
+        wardenName:
+          type: string
+        wardenPhone:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+
+    CreateHostelRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        location:
+          type: string
+        totalRooms:
+          type: number
+        wardenName:
+          type: string
+        wardenPhone:
+          type: string
+      required:
+        - name
+
+    EmergencyContact:
+      type: object
+      properties:
+        id:
+          type: string
+        hostelId:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        phone:
+          type: string
+        isAvailable24x7:
+          type: boolean
+      required:
+        - id
+        - name
+        - role
+        - phone
+
+    CreateContactRequest:
+      type: object
+      properties:
+        hostelId:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        phone:
+          type: string
+        isAvailable24x7:
+          type: boolean
+      required:
+        - name
+        - role
+        - phone
+
+    MessCard:
+      type: object
+      properties:
+        id:
+          type: string
+        studentId:
+          type: string
+        studentName:
+          type: string
+        rollNumber:
+          type: string
+        hostelName:
+          type: string
+        roomNumber:
+          type: string
+        qrCode:
+          type: string
+        isActive:
+          type: boolean
+        validUntil:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - studentId
+        - qrCode
+        - isActive
+
+    GenerateMessCardRequest:
+      type: object
+      properties:
+        studentId:
+          type: string
+        validMonths:
+          type: number
+      required:
+        - studentId
+
+    QRVerifyRequest:
+      type: object
+      properties:
+        qrCode:
+          type: string
+      required:
+        - qrCode
+
+    QRVerifyResult:
+      type: object
+      properties:
+        isValid:
+          type: boolean
+        student:
+          $ref: "#/components/schemas/StudentProfile"
+        messCard:
+          $ref: "#/components/schemas/MessCard"
+        message:
+          type: string
+      required:
+        - isValid
+        - message
+
+    QRLog:
+      type: object
+      properties:
+        id:
+          type: string
+        studentId:
+          type: string
+        studentName:
+          type: string
+        rollNumber:
+          type: string
+        scannedBy:
+          type: string
+        isValid:
+          type: boolean
+        scannedAt:
+          type: string
+      required:
+        - id
+        - isValid
+        - scannedAt
+
+    LostItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        status:
+          type: string
+          enum: [lost, found, claimed]
+        reportedBy:
+          type: string
+        reportedByName:
+          type: string
+        location:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - status
+        - reportedBy
+
+    CreateLostItemRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        imageUrl:
+          type: string
+        location:
+          type: string
+      required:
+        - title
+
+    UpdateLostItemRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [lost, found, claimed]
+        description:
+          type: string
+
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+          enum: [general, urgent, academic, hostel, event]
+        createdBy:
+          type: string
+        createdByName:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - content
+        - category
+
+    CreateAnnouncementRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        category:
+          type: string
+          enum: [general, urgent, academic, hostel, event]
+      required:
+        - title
+        - content
+        - category
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        title:
+          type: string
+        body:
+          type: string
+        type:
+          type: string
+          enum: [announcement, lostitem, discipline, general]
+        isRead:
+          type: boolean
+        refId:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - title
+        - body
+        - type
+        - isRead
+
+    DisciplineLog:
+      type: object
+      properties:
+        id:
+          type: string
+        studentId:
+          type: string
+        studentName:
+          type: string
+        rollNumber:
+          type: string
+        type:
+          type: string
+          enum: [suspicious_activity, rule_violation, warning, other]
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high]
+        addedBy:
+          type: string
+        addedByName:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - studentId
+        - type
+        - description
+        - severity
+
+    CreateDisciplineLogRequest:
+      type: object
+      properties:
+        studentId:
+          type: string
+        type:
+          type: string
+          enum: [suspicious_activity, rule_violation, warning, other]
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high]
+      required:
+        - studentId
+        - type
+        - description
+        - severity
+
+    ReportsSummary:
+      type: object
+      properties:
+        totalStudents:
+          type: number
+        totalHostels:
+          type: number
+        totalLostItems:
+          type: number
+        foundItems:
+          type: number
+        totalQRScans:
+          type: number
+        totalDisciplineLogs:
+          type: number
+        totalAnnouncements:
+          type: number
+        recentActivity:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              description:
+                type: string
+              timestamp:
+                type: string
+      required:
+        - totalStudents
+        - totalHostels
+        - totalLostItems
+        - foundItems
+        - totalQRScans
+        - totalDisciplineLogs
+        - totalAnnouncements
+
+    CreateAdminRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        role:
+          type: string
+          enum: [admin, superadmin]
+      required:
+        - name
+        - email
+        - password
+        - role

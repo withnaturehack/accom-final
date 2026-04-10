@@ -1,0 +1,296 @@
+Build a **FULL-STACK MOBILE APPLICATION using Expo (React Native)** called:
+
+👉 **CampusOps Expo – IIT Madras BS Student Super App**
+
+This must be a **real mobile app (Android/iOS)** built with Expo, not a web app.
+
+---
+
+# 🎯 CORE RULES (VERY STRICT)
+
+* This is a MOBILE APP (Expo React Native)
+* NO static data (except login UI)
+* ALL screens must fetch real data from backend
+* ALL buttons must perform real backend actions
+* Smooth animations + premium UI required
+* App must feel like a real production app
+
+---
+
+# 💻 TECH STACK
+
+Mobile App:
+
+* Expo (React Native)
+* React Navigation
+* NativeWind or Tailwind for React Native
+* Reanimated / Moti (for animations)
+
+Backend:
+
+* Node.js + Express
+
+Database:
+
+* MongoDB
+
+Auth:
+
+* JWT authentication
+
+---
+
+# 🎨 UI/UX (VERY IMPORTANT 🔥)
+
+* Premium UI (Apple / Linear style)
+* Smooth transitions between screens
+* Bottom tab navigation
+* Animated cards and buttons
+* Glassmorphism + gradients
+* Dark + light mode
+* Mobile-first layouts only
+* Clean, modern typography
+
+---
+
+# 📱 APP STRUCTURE
+
+Bottom Navigation Tabs:
+
+* Home
+* Hostel
+* Lost & Found
+* Notifications
+* Profile
+
+---
+
+# 👤 ROLES
+
+## 🎓 Student (MAIN USER)
+
+## 🧑‍💼 Admin
+
+## 👑 Super Admin
+
+---
+
+# ⚡ CORE FEATURES (ALL MUST WORK)
+
+---
+
+## 🧠 1. HOME DASHBOARD
+
+Dynamic data from backend:
+
+* 👋 Greeting (user-based)
+
+* 🏠 Hostel + Room
+
+* 📞 Emergency Contacts:
+
+  * Volunteer
+  * Coordinator
+
+* 🪪 Mess Card:
+
+  * One student = one card
+  * QR code displayed
+  * Download/share option
+
+* 📢 Announcements (live)
+
+* 🔔 Notifications
+
+---
+
+## 🪪 2. QR SYSTEM (REAL MOBILE FEATURE)
+
+* Mess card contains QR code
+
+Admin:
+
+* Use mobile camera to scan QR
+* Verify student
+* Show:
+
+  * Valid / Invalid
+* Store scan logs in DB
+
+---
+
+## 🏠 3. HOSTEL SCREEN
+
+* Show:
+
+  * Hostel name
+  * Room number
+  * Contacts
+
+* Data fetched from backend
+
+---
+
+## 📞 4. EMERGENCY CONTACT
+
+* Click-to-call buttons
+* Stored per hostel
+
+---
+
+## 📦 5. LOST & FOUND
+
+Student:
+
+* Add lost item:
+
+  * Title
+  * Description
+  * Image upload (camera/gallery)
+
+Admin:
+
+* Update status (found/not found)
+
+---
+
+## 📢 6. ANNOUNCEMENTS
+
+* Admin creates announcements
+* Student sees in feed + home banner
+
+---
+
+## 🔔 7. NOTIFICATIONS
+
+* Real-time fetch
+* Show alerts:
+
+  * Announcements
+  * Lost item updates
+
+---
+
+## 🧾 8. DISCIPLINE SYSTEM
+
+Admin:
+
+* Add note:
+
+  * Suspicious activity
+  * Rule violation
+
+Super Admin:
+
+* View all logs
+
+---
+
+## 🧑‍💼 9. ADMIN PANEL (INSIDE APP)
+
+Admin can:
+
+* Add students
+* Assign hostel
+* Add contacts
+* Generate mess card
+* Scan QR
+* Manage lost items
+* Post announcements
+* Add discipline notes
+
+---
+
+## 👑 10. SUPER ADMIN PANEL
+
+* View reports:
+
+  * Students
+  * QR logs
+  * Lost items
+  * Discipline logs
+
+* Create/remove admins
+
+---
+
+# 🔧 BACKEND (FULLY WORKING)
+
+APIs:
+
+* Auth (login/signup)
+* Student profile
+* Hostel assignment
+* QR verification
+* Mess card generation
+* Lost items CRUD
+* Announcements CRUD
+* Notifications
+* Discipline logs
+* Reports
+
+---
+
+# 🧱 DATABASE MODELS
+
+Users
+Student
+Hostel
+MessCard
+QRLogs
+LostItem
+Announcements
+Notifications
+DisciplineLogs
+
+(All properly connected)
+
+---
+
+# 🎬 ANIMATIONS (VERY IMPORTANT)
+
+* Screen transitions (smooth slide/fade)
+* Button press feedback
+* Card animations
+* Loading animations
+* Skeleton loaders
+
+---
+
+# ⚡ PERFORMANCE
+
+* Fast API calls
+* Optimized state
+* No lag in navigation
+
+---
+
+# 🎯 FINAL OUTPUT
+
+* Fully working Expo mobile app
+* Connected backend (Node + MongoDB)
+* All features working end-to-end
+* Smooth animations
+* Premium UI
+* No static data
+
+---
+
+# ❌ DO NOT
+
+* Do NOT build web app
+* Do NOT use static data
+* Do NOT leave any feature incomplete
+
+---
+
+# 🏆 FINAL EXPERIENCE
+
+This app should feel like:
+
+👉 A real mobile app
+👉 Smooth, fast, premium
+👉 Student-friendly + admin powerful
+👉 Hackathon-winning product
+
+Everything must WORK perfectly.
