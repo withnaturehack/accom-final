@@ -1,8 +1,8 @@
 {
   "expo": {
     "name": "CampusOps",
-    "slug": "mobile",
-    "owner": "karzo15",
+    "slug": "iitm",
+    "owner": "helloboss152407",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -54,18 +54,18 @@
     "extra": {
       "apiUrl": "https://zip-12--vpahaddevbhoomi.replit.app/api",
       "router": {
-        "origin": "https://zip-12--vpahaddevbhoomi.replit.app",
-        "headOrigin": "https://zip-12--vpahaddevbhoomi.replit.app"
+        "origin": "https://localhost",
+        "headOrigin": "https://localhost"
       },
       "eas": {
-        "projectId": "d15d6c97-8294-43d8-adbc-f874fb918911"
+        "projectId": "f64c2867-2564-4a71-b261-a164cd54acf3"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "updates": {
-      "url": "https://u.expo.dev/d15d6c97-8294-43d8-adbc-f874fb918911"
+      "url": "https://u.expo.dev/f64c2867-2564-4a71-b261-a164cd54acf3"
     }
   }
 }
