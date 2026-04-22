@@ -160,6 +160,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function logout() {
+    const tokenToClear = state.token;
+
+    // Ask server to record logout before local token removal.
+    if (tokenToClear) {
+      try {
+        await safeJsonFetch(`${base}/auth/logout`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenToClear}`,
+          },
+        }, 10000);
+      } catch {}
+    }
+
     // Clear in-memory auth first so UI immediately transitions to auth screen.
     setState({ user: null, token: null, isLoading: false });
     await AsyncStorage.multiRemove(["token"]).catch(() => {});

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, usersTable, hostelsTable } from "@workspace/db";
+import { db, usersTable, hostelsTable, timeLogsTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import {
   generateId,
@@ -61,6 +61,19 @@ router.post("/login", async (req, res) => {
     }
 
     const token = generateToken(user.id, user.role);
+
+    try {
+      await db.insert(timeLogsTable).values({
+        id: generateId(),
+        userId: user.id,
+        hostelId: user.hostelId || null,
+        type: "login",
+        note: "User login",
+      });
+    } catch (logErr) {
+      // Login should not fail if activity logging fails.
+      console.error("LOGIN TIMELOG ERROR:", logErr);
+    }
 
     return res.json({
       success: true,
@@ -133,6 +146,28 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "Conflict", message: "Email or roll number already registered" });
     }
     return res.status(500).json({ error: "Internal Server Error", message: "Something went wrong" });
+  }
+});
+
+// POST /api/auth/logout
+router.post("/logout", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const [user] = await db.select({ hostelId: usersTable.hostelId })
+      .from(usersTable)
+      .where(eq(usersTable.id, req.userId!));
+
+    await db.insert(timeLogsTable).values({
+      id: generateId(),
+      userId: req.userId!,
+      hostelId: user?.hostelId || null,
+      type: "logout",
+      note: "User logout",
+    });
+
+    return res.json({ success: true });
+  } catch (err) {
+    console.error("LOGOUT ERROR:", err);
+    return res.status(500).json({ error: "Internal Server Error", message: "Logout failed" });
   }
 });
 

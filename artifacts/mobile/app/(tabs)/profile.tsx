@@ -75,28 +75,14 @@ export default function ProfileScreen() {
       .join(", ");
   }, [assignedHostelIds, hostelsList]);
 
-  const resolvedHostelValue = React.useMemo(() => {
-    if (profile?.hostelName) return profile.hostelName;
-    if (profile?.hostelId) return profile.hostelId;
+  const resolvedAssignedHostelValue = React.useMemo(() => {
     if (assignedHostelNames) return assignedHostelNames;
     if (assignedHostelIds.length) return assignedHostelIds.join(", ");
+    if (profile?.hostelName) return profile.hostelName;
+    if (profile?.hostelId) return profile.hostelId;
+    if (isSuperAdmin) return "All hostels";
     return undefined;
-  }, [profile?.hostelName, profile?.hostelId, assignedHostelNames, assignedHostelIds]);
-
-  const normalizedHostelValue = React.useCallback((value?: string) => {
-    if (!value) return "";
-    return value
-      .split(",")
-      .map((part) => part.trim().toLowerCase())
-      .filter(Boolean)
-      .sort()
-      .join("|");
-  }, []);
-
-  const showAssignedHostelsRow = React.useMemo(() => {
-    if (!assignedHostelNames) return false;
-    return normalizedHostelValue(assignedHostelNames) !== normalizedHostelValue(resolvedHostelValue);
-  }, [assignedHostelNames, resolvedHostelValue, normalizedHostelValue]);
+  }, [assignedHostelNames, assignedHostelIds, profile?.hostelName, profile?.hostelId, isSuperAdmin]);
 
   const handleLogout = () => {
     if (loggingOut) return;
@@ -141,11 +127,8 @@ export default function ProfileScreen() {
       { icon: "coffee", label: "Mess", val: profile?.assignedMess },
     ] : []),
     ...(!isStudent ? [
-      { icon: "home", label: "Hostel", val: resolvedHostelValue, managed: true, alwaysShow: true },
+      { icon: "home", label: isSuperAdmin ? "Hostel Scope" : "Assigned Hostel", val: resolvedAssignedHostelValue, managed: true, alwaysShow: true },
       { icon: "map-pin", label: "Area", val: profile?.area, managed: true, alwaysShow: true },
-      ...(showAssignedHostelsRow ? [
-        { icon: "layers", label: "Assigned Hostels", val: assignedHostelNames || undefined },
-      ] : []),
     ] : []),
   ].filter((r: any) => r.alwaysShow || r.val);
 
@@ -219,7 +202,7 @@ export default function ProfileScreen() {
           <View style={[styles.managedNote, { borderTopColor: theme.border }]}>
             <Feather name="refresh-cw" size={11} color={theme.textTertiary} />
             <Text style={[styles.managedNoteText, { color: theme.textTertiary }]}>
-              Hostel and area are managed by Super Admin and auto-refresh here.
+              Assigned hostel scope and area are managed by Super Admin and auto-refresh here.
             </Text>
           </View>
         )}

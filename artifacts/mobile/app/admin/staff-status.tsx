@@ -12,7 +12,7 @@ import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApiRequest, useAuth } from "@/context/AuthContext";
 
-const LIVE_REFRESH_MS = 5000;
+const LIVE_REFRESH_MS = 8000;
 
 const ROLE_COLORS: Record<string, string> = {
   volunteer: "#22c55e",
@@ -125,9 +125,27 @@ function StaffDetailModal({
   useEffect(() => {
     if (visible) setAreaDraft(staff?.area || "");
   }, [visible, staff?.id, staff?.area]);
+  const roleColor = ROLE_COLORS[staff?.role] || "#6366f1";
+  const phone = staff?.contactNumber || staff?.phone || "";
+  const hostelNameById = new Map<string, string>();
+  hostels.forEach((h: any) => {
+    if (h?.id && h?.name) hostelNameById.set(String(h.id), String(h.name));
+  });
+  const currentHostelLabel = staff?.hostelName || staff?.hostelId || "";
+  const assignedScope = Array.from(
+    new Set([
+      ...parseAssignedHostelIds(staff?.assignedHostelIds),
+      String(staff?.hostelId || ""),
+    ].filter(Boolean)),
+  );
+  const assignedHostelLabel = assignedScope
+    .map((id) => {
+      if (id === staff?.hostelId && staff?.hostelName) return staff.hostelName;
+      return hostelNameById.get(id) || id;
+    })
+    .join(", ");
+
   if (!staff) return null;
-  const roleColor = ROLE_COLORS[staff.role] || "#6366f1";
-  const phone = staff.contactNumber || staff.phone || "";
 
   return (
     <>
@@ -164,16 +182,16 @@ function StaffDetailModal({
               {/* Info list */}
               <View style={[sd.infoCard, { backgroundColor: theme.background, borderColor: theme.border }]}>
                 <InfoRow icon="clock" label="Last Seen" value={timeAgo(staff.lastActiveAt)} theme={theme} />
-                {!!(staff.hostelName || staff.hostelId) && (
-                  <InfoRow icon="home" label="Hostel" value={staff.hostelName || staff.hostelId} theme={theme} />
-                )}
-                {!!parseAssignedHostelIds(staff.assignedHostelIds).length && (
+                {!!assignedHostelLabel && (
                   <InfoRow
                     icon="layers"
-                    label="Assigned"
-                    value={parseAssignedHostelIds(staff.assignedHostelIds).join(", ")}
+                    label={assignedScope.length > 1 ? "Assigned" : "Assigned Hostel"}
+                    value={assignedHostelLabel}
                     theme={theme}
                   />
+                )}
+                {!!currentHostelLabel && currentHostelLabel !== assignedHostelLabel && (
+                  <InfoRow icon="home" label="Current Hostel" value={currentHostelLabel} theme={theme} />
                 )}
                 {!!staff.area && <InfoRow icon="map-pin" label="Area" value={staff.area} theme={theme} />}
                 {!!phone && <InfoRow icon="phone" label="Phone" value={phone} theme={theme} />}
@@ -279,9 +297,9 @@ export default function StaffStatusScreen() {
   const { data: liveMe } = useQuery<any>({
     queryKey: ["staff-status-me"],
     queryFn: () => request("/auth/me"),
-    enabled: isVolunteer,
+    enabled: isVolunteer && !isSuperAdmin,
     refetchInterval: LIVE_REFRESH_MS,
-    staleTime: 2000,
+    staleTime: 4000,
     refetchOnMount: "always",
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
@@ -298,18 +316,12 @@ export default function StaffStatusScreen() {
   const [staffSearch, setStaffSearch] = useState("");
   const [staffFilter, setStaffFilter] = useState<"all" | "online" | "offline">("all");
   const [roleFilter, setRoleFilter] = useState<"all" | "admins" | "volunteers">("all");
-  const [now, setNow] = useState(Date.now());
   const [reassigning, setReassigning] = useState(false);
-
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 10000);
-    return () => clearInterval(t);
-  }, []);
-  void now;
 
   const { data: myStatus, refetch: refetchStatus } = useQuery<{ isActive: boolean; lastActiveAt: string | null }>({
     queryKey: ["my-status"],
     queryFn: () => request("/staff/me-status"),
+    enabled: !isSuperAdmin,
     refetchInterval: LIVE_REFRESH_MS,
     refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
@@ -324,7 +336,7 @@ export default function StaffStatusScreen() {
     enabled: isVolunteer,
     refetchInterval: LIVE_REFRESH_MS,
     refetchIntervalInBackground: true,
-    staleTime: 1000,
+    staleTime: 3000,
     gcTime: 10 * 60 * 1000,
     placeholderData: keepPreviousData,
     refetchOnWindowFocus: true,
@@ -338,7 +350,7 @@ export default function StaffStatusScreen() {
     enabled: isSuperAdmin,
     refetchInterval: LIVE_REFRESH_MS,
     refetchIntervalInBackground: true,
-    staleTime: 1000,
+    staleTime: 3000,
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
     refetchOnMount: "always",
@@ -347,13 +359,17 @@ export default function StaffStatusScreen() {
   const { data: hostels = [], isLoading: hostelsLoading } = useQuery<any[]>({
     queryKey: ["hostels"],
     queryFn: () => request("/hostels"),
-    enabled: isSuperAdmin,
+    enabled: isVolunteer,
     staleTime: 60000,
   });
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([refetchStatus(), refetchAll(), ...(isSuperAdmin ? [refetchAdminUsers()] : [])]);
+    if (isSuperAdmin) {
+      await Promise.all([refetchAll(), refetchAdminUsers()]);
+    } else {
+      await Promise.all([refetchStatus(), refetchAll()]);
+    }
     setRefreshing(false);
   }, [refetchStatus, refetchAll, refetchAdminUsers, isSuperAdmin]);
 
@@ -385,7 +401,12 @@ export default function StaffStatusScreen() {
         body: JSON.stringify(payload),
       });
       qc.invalidateQueries({ queryKey: ["staff-all"] });
-      await refetchAll();
+      if (isSuperAdmin) {
+        qc.invalidateQueries({ queryKey: ["admin-users"] });
+        await Promise.all([refetchAll(), refetchAdminUsers()]);
+      } else {
+        await refetchAll();
+      }
       setSelectedStaff((prev: any) => prev ? { ...prev, ...payload } : null);
     } catch { }
     setReassigning(false);
@@ -412,10 +433,10 @@ export default function StaffStatusScreen() {
   }, [isSuperAdmin, assignedHostelIds, effectiveUser?.hostelId]);
 
   const mergedStaff = React.useMemo(() => {
-    if (!isSuperAdmin) return allStaff as any[];
+    if (!isSuperAdmin) return allStaff;
     const map = new Map<string, any>();
-    (allStaff as any[]).forEach((s: any) => map.set(s.id, { ...s }));
-    (adminUsers as any[]).forEach((a: any) => {
+    allStaff.forEach((s: any) => map.set(s.id, { ...s }));
+    adminUsers.forEach((a: any) => {
       const existing = map.get(a.id) || {};
       map.set(a.id, {
         ...a,
@@ -424,12 +445,12 @@ export default function StaffStatusScreen() {
         name: a.name ?? existing.name,
         email: a.email ?? existing.email,
         role: a.role ?? existing.role,
-        hostelId: a.hostelId ?? existing.hostelId,
-        hostelName: a.hostelName ?? existing.hostelName,
-        assignedHostelIds: a.assignedHostelIds ?? existing.assignedHostelIds,
-        area: a.area ?? existing.area,
-        phone: a.phone ?? existing.phone,
-        contactNumber: a.contactNumber ?? existing.contactNumber,
+        hostelId: existing.hostelId ?? a.hostelId,
+        hostelName: existing.hostelName ?? a.hostelName,
+        assignedHostelIds: existing.assignedHostelIds ?? a.assignedHostelIds,
+        area: existing.area ?? a.area,
+        phone: existing.phone ?? a.phone,
+        contactNumber: existing.contactNumber ?? a.contactNumber,
         lastActiveAt: existing.lastActiveAt ?? a.lastActiveAt ?? null,
         isOnline: existing.isOnline ?? (a.lastActiveAt ? Date.now() - new Date(a.lastActiveAt).getTime() < 10 * 60 * 1000 : false),
       });
@@ -470,18 +491,26 @@ export default function StaffStatusScreen() {
 
   const hostelNameById = React.useMemo(() => {
     const m = new Map<string, string>();
-    (hostels as any[]).forEach((h: any) => {
+    hostels.forEach((h: any) => {
       if (h?.id && h?.name) m.set(String(h.id), String(h.name));
     });
     return m;
   }, [hostels]);
 
   const staffHostelLabel = React.useCallback((s: any) => {
-    if (s?.hostelName) return s.hostelName;
-    if (s?.hostelId) return s.hostelId;
-    const assigned = parseAssignedHostelIds(s?.assignedHostelIds);
+    const assigned = Array.from(
+      new Set([
+        ...parseAssignedHostelIds(s?.assignedHostelIds),
+        String(s?.hostelId || ""),
+      ].filter(Boolean)),
+    );
     if (!assigned.length) return "";
-    return assigned.map((id) => hostelNameById.get(id) || id).join(", ");
+    return assigned
+      .map((id) => {
+        if (id === s?.hostelId && s?.hostelName) return s.hostelName;
+        return hostelNameById.get(id) || id;
+      })
+      .join(", ");
   }, [hostelNameById]);
 
   return (
@@ -695,7 +724,7 @@ export default function StaffStatusScreen() {
                 <Text style={[styles.staffEmail, { color: theme.textSecondary }]} numberOfLines={1}>{item.email}</Text>
                 {!!staffHostelLabel(item) && (
                   <Text style={[styles.staffMeta, { color: theme.textTertiary }]}>
-                    <Feather name="home" size={10} color={theme.textTertiary} /> {staffHostelLabel(item)}
+                    <Feather name="layers" size={10} color={theme.textTertiary} /> Assigned: {staffHostelLabel(item)}
                   </Text>
                 )}
                 <Text style={[styles.staffRole, { color: roleColor }]}>
@@ -726,7 +755,7 @@ export default function StaffStatusScreen() {
         onClose={() => setSelectedStaff(null)}
         theme={theme}
         isSuperAdmin={isSuperAdmin}
-        hostels={hostels as any[]}
+        hostels={hostels}
         hostelsLoading={hostelsLoading}
         onReassign={handleReassign}
         reassigning={reassigning}
