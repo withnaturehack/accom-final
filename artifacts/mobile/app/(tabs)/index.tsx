@@ -88,6 +88,12 @@ export default function HomeScreen() {
   const heartbeatRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const liveMeSnapshotRef = useRef<any | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [liveNow, setLiveNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const tick = setInterval(() => setLiveNow(Date.now()), 30_000);
+    return () => clearInterval(tick);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -378,7 +384,11 @@ export default function HomeScreen() {
     : effectiveRole === "volunteer" ? "blue"
     : "green";
 
-  const isActive = myStatus?.isActive ?? false;
+  // Client-side: if server says active but last heartbeat > 10 min ago, treat as expired
+  const serverActive = myStatus?.isActive ?? false;
+  const lastActiveMs = myStatus?.lastActiveAt ? new Date(myStatus.lastActiveAt).getTime() : 0;
+  const clientExpired = serverActive && lastActiveMs > 0 && (liveNow - lastActiveMs) > 10 * 60 * 1000;
+  const isActive = serverActive && !clientExpired;
   const requiresShift = user?.role === "volunteer" || user?.role === "admin" || user?.role === "coordinator";
   const canWork = !requiresShift || isActive;
   const pendingNum = pendingCount?.count ?? 0;

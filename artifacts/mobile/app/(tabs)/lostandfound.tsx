@@ -723,20 +723,8 @@ export default function AttendanceTab() {
           }]}> 
             <View style={[styles.shiftDot, { backgroundColor: myStatus?.isActive ? "#22c55e" : "#f59e0b" }]} />
             <Text style={[styles.shiftText, { color: myStatus?.isActive ? "#22c55e" : "#f59e0b" }]}> 
-              {myStatus?.isActive ? "Shift Active" : "Shift Inactive"}
+              {myStatus?.isActive ? "Shift Active" : "Shift Inactive — manage from Home"}
             </Text>
-            <Pressable
-              onPress={myStatus?.isActive ? goInactive : goActive}
-              disabled={activating || deactivating}
-              style={[styles.shiftBtnInline, {
-                backgroundColor: myStatus?.isActive ? "#ef444415" : "#22c55e15",
-                borderColor: myStatus?.isActive ? "#ef444440" : "#22c55e40",
-              }]}
-            >
-              <Text style={[styles.shiftBtnInlineText, { color: myStatus?.isActive ? "#ef4444" : "#22c55e" }]}> 
-                {activating || deactivating ? "Updating..." : myStatus?.isActive ? "Go Inactive" : "Go Active"}
-              </Text>
-            </Pressable>
           </View>
         )}
       </View>
@@ -789,15 +777,8 @@ export default function AttendanceTab() {
           <View style={[StyleSheet.absoluteFill, { backgroundColor: isDark ? "rgba(0,0,0,0.8)" : "rgba(255,255,255,0.88)" }]} />
           <View style={[styles.lockCard, { backgroundColor: theme.surface, borderColor: theme.border }]}>
             <Feather name="lock" size={20} color={theme.textSecondary} />
-            <Text style={[styles.lockTitle, { color: theme.text }]}>Shift inactive</Text>
-            <Text style={[styles.lockSub, { color: theme.textSecondary }]}>Start shift to view attendance and inventory actions.</Text>
-            <Pressable
-              onPress={goActive}
-              disabled={activating}
-              style={[styles.lockBtn, { backgroundColor: theme.tint, opacity: activating ? 0.7 : 1 }]}
-            >
-              <Text style={styles.lockBtnText}>{activating ? "Starting..." : "Go Active"}</Text>
-            </Pressable>
+            <Text style={[styles.lockTitle, { color: theme.text }]}>Shift Inactive</Text>
+            <Text style={[styles.lockSub, { color: theme.textSecondary }]}>Go to the Home tab to start your shift, then come back here.</Text>
           </View>
         </View>
       )}
