@@ -182,17 +182,6 @@ function StaffDetailModal({
               {/* Info list */}
               <View style={[sd.infoCard, { backgroundColor: theme.background, borderColor: theme.border }]}>
                 <InfoRow icon="clock" label="Last Seen" value={timeAgo(staff.lastActiveAt)} theme={theme} />
-                {!!assignedHostelLabel && (
-                  <InfoRow
-                    icon="layers"
-                    label={assignedScope.length > 1 ? "Assigned" : "Assigned Hostel"}
-                    value={assignedHostelLabel}
-                    theme={theme}
-                  />
-                )}
-                {!!currentHostelLabel && currentHostelLabel !== assignedHostelLabel && (
-                  <InfoRow icon="home" label="Current Hostel" value={currentHostelLabel} theme={theme} />
-                )}
                 {!!staff.area && <InfoRow icon="map-pin" label="Area" value={staff.area} theme={theme} />}
                 {!!phone && <InfoRow icon="phone" label="Phone" value={phone} theme={theme} />}
               </View>
@@ -724,7 +713,7 @@ export default function StaffStatusScreen() {
                 <Text style={[styles.staffEmail, { color: theme.textSecondary }]} numberOfLines={1}>{item.email}</Text>
                 {!!staffHostelLabel(item) && (
                   <Text style={[styles.staffMeta, { color: theme.textTertiary }]}>
-                    <Feather name="layers" size={10} color={theme.textTertiary} /> Assigned: {staffHostelLabel(item)}
+                    <Feather name="home" size={10} color={theme.textTertiary} /> Hostel: {staffHostelLabel(item)}
                   </Text>
                 )}
                 <Text style={[styles.staffRole, { color: roleColor }]}>
