@@ -302,17 +302,6 @@ export default function MessCardTabScreen() {
       </View>
 
       {/* Metrics */}
-      {requiresShift && (
-        <View style={[styles.shiftBanner, {
-          backgroundColor: myStatus?.isActive ? "#22c55e12" : "#f59e0b12",
-          borderColor: myStatus?.isActive ? "#22c55e40" : "#f59e0b40",
-        }]}>
-          <View style={[styles.shiftDot, { backgroundColor: myStatus?.isActive ? "#22c55e" : "#f59e0b" }]} />
-          <Text style={[styles.shiftText, { color: myStatus?.isActive ? "#22c55e" : "#f59e0b" }]}>
-            {myStatus?.isActive ? "Shift Active" : "Shift Inactive — manage from Home"}
-          </Text>
-        </View>
-      )}
 
       {/* Search */}
       <View style={[styles.searchWrap, { backgroundColor: theme.surface, borderColor: theme.border }]}>

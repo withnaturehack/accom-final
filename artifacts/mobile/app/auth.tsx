@@ -11,7 +11,7 @@ import Colors from "@/constants/colors";
 import { useAuth } from "@/context/AuthContext";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
-const LOGO = require("../assets/images/paradox-logo.jpg");
+const LOGO = require("../assets/images/paradox-logo.png");
 
 type Tab = "login" | "register";
 
@@ -255,7 +255,7 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { paddingHorizontal: 20, alignItems: "stretch" },
   hero: { alignItems: "center", marginBottom: 28, gap: 4 },
-  logoWrap: { width: 160, height: 160, borderRadius: 80, overflow: "hidden", marginBottom: 14, borderWidth: 3, borderColor: "#f59e0b50" },
+  logoWrap: { width: 160, height: 160, borderRadius: 80, overflow: "hidden", marginBottom: 14, borderWidth: 3, borderColor: "#c026d370" },
   logo: { width: "100%", height: "100%" },
   appName: { fontSize: 32, fontFamily: "Inter_700Bold", letterSpacing: -0.5 },
   appSub: { fontSize: 12, fontFamily: "Inter_700Bold", letterSpacing: 3, marginTop: -2 },

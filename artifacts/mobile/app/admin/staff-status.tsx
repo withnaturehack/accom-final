@@ -182,8 +182,13 @@ function StaffDetailModal({
               {/* Info list */}
               <View style={[sd.infoCard, { backgroundColor: theme.background, borderColor: theme.border }]}>
                 <InfoRow icon="clock" label="Last Seen" value={timeAgo(staff.lastActiveAt)} theme={theme} />
-                {!!assignedHostelLabel && (
-                  <InfoRow icon="home" label="Hostel" value={assignedHostelLabel} theme={theme} />
+                {!!(staff.hostelName || hostelNameById.get(String(staff.hostelId || ""))) && (
+                  <InfoRow
+                    icon="home"
+                    label="Hostel"
+                    value={staff.hostelName || hostelNameById.get(String(staff.hostelId || "")) || ""}
+                    theme={theme}
+                  />
                 )}
                 {!!staff.area && <InfoRow icon="map-pin" label="Area" value={staff.area} theme={theme} />}
                 {!!phone && <InfoRow icon="phone" label="Phone" value={phone} theme={theme} />}
