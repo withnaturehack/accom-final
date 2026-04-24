@@ -356,7 +356,7 @@ export default function StaffStatusScreen() {
   const { data: hostels = [], isLoading: hostelsLoading } = useQuery<any[]>({
     queryKey: ["hostels"],
     queryFn: () => request("/hostels"),
-    enabled: isVolunteer,
+    enabled: !isStudent,
     staleTime: 60000,
   });
 
