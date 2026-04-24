@@ -205,7 +205,7 @@ export default function MessCardTabScreen() {
       const chunk = await request(`/students?limit=${STUDENTS_FETCH_LIMIT}&offset=0${searchParam}`);
       return Array.isArray(chunk) ? chunk : (chunk?.students || chunk?.data || []);
     },
-    enabled: canWork && isFocused,
+    enabled: canWork && isFocused && hasSearchQuery,
     refetchInterval: isFocused ? 20000 : false,
     staleTime: 8000,
     refetchOnMount: "always",
@@ -352,12 +352,20 @@ export default function MessCardTabScreen() {
         </Pressable>
       </View>
 
-      {!hasSearchQuery && students.length === 0 && !isLoading && canWork && (
-        <Text style={{ color: theme.textSecondary, fontSize: 12, fontFamily: "Inter_400Regular", paddingHorizontal: 16, paddingBottom: 6 }}>
-          No students found. Try a different search.
-        </Text>
-      )}
-
+      {!hasSearchQuery && canWork ? (
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
+          <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: theme.tint + "15", alignItems: "center", justifyContent: "center", marginBottom: 16 }}>
+            <Feather name="search" size={28} color={theme.tint} />
+          </View>
+          <Text style={{ color: theme.text, fontSize: 17, fontFamily: "Inter_700Bold", textAlign: "center", marginBottom: 8 }}>
+            Search for a Student
+          </Text>
+          <Text style={{ color: theme.textSecondary, fontSize: 13, fontFamily: "Inter_400Regular", textAlign: "center" }}>
+            Type a student name, roll number, or room number above, then tap Search.
+          </Text>
+        </View>
+      ) : (
+        <>
       {/* Filter tabs */}
       <View style={[styles.filterRow, { borderBottomColor: theme.border }]}>
         {(["all", "given", "pending"] as const).map((f) => (
@@ -386,6 +394,10 @@ export default function MessCardTabScreen() {
 
       {isLoading && students.length === 0 ? (
         <ActivityIndicator color={theme.tint} style={{ marginTop: 24 }} />
+      ) : students.length === 0 ? (
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <Text style={{ color: theme.textSecondary, fontSize: 14, fontFamily: "Inter_400Regular" }}>No students found.</Text>
+        </View>
       ) : (
         <FlatList
           data={visibleStudents}
@@ -442,6 +454,8 @@ export default function MessCardTabScreen() {
             </Pressable>
           )}
         />
+      )}
+        </>
       )}
 
       {/* Enhanced Student Detail Sheet */}

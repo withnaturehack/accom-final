@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.gtk3
     pkgs.mesa
     pkgs.libxkbcommon
     pkgs.xorg.libxcb

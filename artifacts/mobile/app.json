@@ -5,11 +5,11 @@
     "owner": "helloboss152407",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/paradox-logo.jpg",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/splash-icon.png",
+      "image": "./assets/images/paradox-logo.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -20,7 +20,7 @@
     "android": {
       "package": "in.iitm.campusops",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/icon.png",
+        "foregroundImage": "./assets/images/paradox-logo.jpg",
         "backgroundColor": "#ffffff"
       },
       "allowBackup": false

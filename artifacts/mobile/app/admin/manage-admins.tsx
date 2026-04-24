@@ -319,10 +319,10 @@ export default function ManageAdminsScreen() {
                     </Text>
                   </View>
                 ) : (
-                  <Pressable onPress={() => openAssign(member)} style={[styles.hostelRow, { backgroundColor: "#F5A62315", borderColor: "#F5A62340" }]}>
+                  <View style={[styles.hostelRow, { backgroundColor: "#F5A62315", borderColor: "#F5A62340" }]}>
                     <Feather name="alert-circle" size={13} color="#F5A623" />
-                    <Text style={[styles.hostelText, { color: "#F5A623" }]}>Tap to assign hostel</Text>
-                  </Pressable>
+                    <Text style={[styles.hostelText, { color: "#F5A623" }]}>Hostel Not Assigned</Text>
+                  </View>
                 )}
                 {!!member.area && (
                   <View style={[styles.hostelRow, { backgroundColor: theme.surface, borderColor: theme.border, marginTop: 6 }]}>
