@@ -26,7 +26,7 @@
       "allowBackup": false
     },
     "web": {
-      "favicon": "./assets/images/paradox-logo.jpg"
+      "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
       [
