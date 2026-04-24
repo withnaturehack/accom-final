@@ -154,6 +154,7 @@ workspace/
 - **expo-router@6 / @expo/router-server@55 shim**: `expo@55` pulls in `@expo/router-server@55.0.11` which requires `expo-router/internal/routing` and `expo-router/internal/testing` — both missing from `expo-router@6.0.x`. A `postinstall` script at `scripts/patch-expo-router.js` creates these shims automatically after `pnpm install`.
 - **Database**: Uses Supabase (`SUPABASE_DATABASE_URL`), `DATABASE_URL` secret also set as fallback.
 - **CI mode**: Mobile runs with `CI=1` so Metro disables watch mode (required for Replit).
+- **React Native DevTools system libs**: The `@react-native/debugger-shell` binary (Chromium-based) requires these Nix system packages to start Metro during production builds: `glib`, `nspr`, `nss`, `atk`, `cups`, `expat`, `libdrm`, `pango`, `cairo`, `dbus`, `alsa-lib`, `xorg.libX11`, `xorg.libXcomposite`, `xorg.libXdamage`, `xorg.libXext`, `xorg.libXfixes`, `xorg.libXrandr`, `xorg.libxcb`, `libxkbcommon`, `mesa`. Missing any of these causes `Metro timeout` during the mobile build.
 
 ## Deployed URLs
 
