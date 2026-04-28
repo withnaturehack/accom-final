@@ -42,6 +42,7 @@ function StudentDetailModal({ student, visible, onClose, theme, onUpdated }: {
   const qc = useQueryClient();
   const [marking, setMarking] = useState(false);
   const [checkingIn, setCheckingIn] = useState(false);
+  const [revoking, setRevoking] = useState(false);
 
   const canMark = ["admin","superadmin","coordinator","volunteer"].includes(user?.role || "");
 
@@ -103,11 +104,41 @@ function StudentDetailModal({ student, visible, onClose, theme, onUpdated }: {
     try {
       await request(`/checkins/${s.id}`, { method: "POST" });
       qc.invalidateQueries({ queryKey: ["student-detail", s.id] });
+      qc.invalidateQueries({ queryKey: ["student-checkin-history", s.id] });
+      qc.invalidateQueries({ queryKey: ["master-students"] });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      onUpdated?.();
     } catch (e: any) {
       Alert.alert("Error", e.message || "Failed to mark check-in");
     }
     setCheckingIn(false);
+  };
+
+  const doRevokeCheckin = async () => {
+    if (!s?.id) return;
+    setRevoking(true);
+    try {
+      await request(`/checkins/${s.id}/today`, { method: "DELETE" });
+      qc.invalidateQueries({ queryKey: ["student-detail", s.id] });
+      qc.invalidateQueries({ queryKey: ["student-checkin-history", s.id] });
+      qc.invalidateQueries({ queryKey: ["master-students"] });
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      onUpdated?.();
+    } catch (e: any) {
+      Alert.alert("Error", e.message || "Failed to revoke check-in");
+    }
+    setRevoking(false);
+  };
+
+  const revokeCheckin = () => {
+    Alert.alert(
+      "Revoke Today's Check-in?",
+      `This will completely remove today's check-in/check-out record for ${s?.name || "this student"} and reset their inventory. Use this only if the check-in was a mistake.`,
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Revoke", style: "destructive", onPress: doRevokeCheckin },
+      ],
+    );
   };
 
   if (!student) return null;
@@ -282,6 +313,20 @@ function StudentDetailModal({ student, visible, onClose, theme, onUpdated }: {
                         <>
                           <Feather name="log-in" size={18} color={theme.tint} />
                           <Text style={[sd.actionBtnText, { color: theme.tint }]}>Mark Campus Check-in</Text>
+                        </>
+                      )}
+                    </Pressable>
+                  )}
+                  {!!s?.checkInTime && (
+                    <Pressable
+                      onPress={revokeCheckin}
+                      disabled={revoking}
+                      style={[sd.actionBtn, { backgroundColor: "#f9731615", borderColor: "#f9731640" }]}
+                    >
+                      {revoking ? <ActivityIndicator size="small" color="#f97316" /> : (
+                        <>
+                          <Feather name="rotate-ccw" size={18} color="#f97316" />
+                          <Text style={[sd.actionBtnText, { color: "#f97316" }]}>Revoke Today's Check-in</Text>
                         </>
                       )}
                     </Pressable>
