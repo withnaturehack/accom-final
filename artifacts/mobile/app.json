@@ -53,8 +53,11 @@
     "extra": {
       "apiUrl": "https://zip-12--vpahaddevbhoomi.replit.app/api",
       "router": {
-        "origin": "https://localhost",
-        "headOrigin": "https://localhost"
+        "origin": "https://zip-12--vpahaddevbhoomi.replit.app",
+        "headOrigin": "https://zip-12--vpahaddevbhoomi.replit.app"
+      },
+      "eas": {
+        "projectId": "0533180b-87ac-4b76-82a8-c48de7d426c7"
       }
     },
     "runtimeVersion": {

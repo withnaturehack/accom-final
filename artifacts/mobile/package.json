@@ -64,6 +64,7 @@
     "expo-updates": "~55.0.21",
     "http-proxy-middleware": "^3.0.5",
     "react": "19.2.0",
-    "react-native-qrcode-svg": "^6.3.21"
+    "react-native-qrcode-svg": "^6.3.21",
+    "@expo/metro-config": "~54.0.15"
   }
 }
