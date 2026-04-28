@@ -182,6 +182,61 @@ function AttendanceModal({
     doAction("checkout", () => request(`/checkins/${checkin.id}/checkout`, { method: "PATCH", body: JSON.stringify({}) }));
   };
 
+  const confirmAsync = (title: string, msg: string): Promise<boolean> => {
+    if (Platform.OS === "web") {
+      // eslint-disable-next-line no-alert
+      return Promise.resolve(typeof window !== "undefined" && window.confirm(`${title}\n\n${msg}`));
+    }
+    return new Promise((resolve) => {
+      Alert.alert(title, msg, [
+        { text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+        { text: "Revoke", style: "destructive", onPress: () => resolve(true) },
+      ]);
+    });
+  };
+
+  const revokeCheckin = async () => {
+    if (!student) return;
+    const ok = await confirmAsync(
+      "Revoke Attendance?",
+      "This will clear today's check-in/check-out and reset inventory for this student. Are you sure?",
+    );
+    if (!ok) return;
+    doAction("revoke-checkin", () => request(`/checkins/${student.id}/today`, { method: "DELETE" }));
+  };
+
+  const revokeItem = async (item: "mattress" | "bedsheet" | "pillow") => {
+    if (!student) return;
+    const ok = await confirmAsync(
+      `Revoke ${item.charAt(0).toUpperCase() + item.slice(1)}?`,
+      `Mark ${item} as not given/submitted for this student.`,
+    );
+    if (!ok) return;
+    doAction(`revoke-${item}`, () => request(`/attendance/inventory/${student.id}/revoke-item`, {
+      method: "POST",
+      body: JSON.stringify({ item }),
+    }));
+  };
+
+  const revokeAllInventory = async () => {
+    if (!student) return;
+    const ok = await confirmAsync(
+      "Reset All Inventory?",
+      "This will unlock and clear every inventory item for this student today.",
+    );
+    if (!ok) return;
+    doAction("revoke-all", () => request(`/attendance/inventory/${student.id}/revoke`, {
+      method: "POST",
+      body: JSON.stringify({}),
+    }));
+  };
+
+  const hasAnyInv =
+    inv.mattress || inv.bedsheet || inv.pillow ||
+    inv.mattressSubmitted || inv.bedsheetSubmitted || inv.pillowSubmitted ||
+    inv.inventoryLocked;
+  const showRevokeCard = hasAttendanceSession || hasAnyInv;
+
   function formatTime(ts: string | null): string {
     if (!ts) return "—";
     return new Date(ts).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour12: true, hour: "2-digit", minute: "2-digit" });
@@ -374,6 +429,109 @@ function AttendanceModal({
               )}
               {isCheckedIn && noItemsGiven && !isCheckedOut && (
                 <Text style={[styles.sectionHint, { color: "#111827" }]}>No inventory taken, checkout is enabled</Text>
+              )}
+
+              {/* ── Revoke Actions (volunteer / admin / super admin) ───── */}
+              {showRevokeCard && (
+                <>
+                  <View style={[styles.revokeCard, { backgroundColor: theme.surface, borderColor: "#ef444433" }]}>
+                    <View style={styles.revokeHeader}>
+                      <View style={styles.revokeIconCircle}>
+                        <Feather name="rotate-ccw" size={14} color="#ef4444" />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.revokeCardTitle, { color: theme.text }]}>Revoke Actions</Text>
+                        <Text style={[styles.revokeCardHint, { color: theme.textSecondary }]}>
+                          Undo a check-in/check-out or unlock this student&apos;s inventory.
+                        </Text>
+                      </View>
+                      {actionLoading?.startsWith("revoke") && <ActivityIndicator size="small" color="#ef4444" />}
+                    </View>
+
+                    <View style={styles.revokeBtnGroup}>
+                      {hasAttendanceSession && (
+                        <Pressable
+                          disabled={!!actionLoading}
+                          onPress={revokeCheckin}
+                          style={({ pressed }) => [styles.revokeBtnRow, {
+                            backgroundColor: pressed && !actionLoading ? "#fee2e2" : "#fef2f2",
+                            borderColor: "#ef444433",
+                            opacity: actionLoading ? 0.6 : 1,
+                          }]}
+                        >
+                          <View style={[styles.revokeBtnIcon, { backgroundColor: "#ef444418" }]}>
+                            <Feather name="log-out" size={15} color="#ef4444" />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={styles.revokeBtnTitle}>Revoke Check-in / Check-out</Text>
+                            <Text style={[styles.revokeBtnSub, { color: theme.textSecondary }]}>
+                              Clears today&apos;s entry & resets inventory
+                            </Text>
+                          </View>
+                          {actionLoading === "revoke-checkin"
+                            ? <ActivityIndicator size="small" color="#ef4444" />
+                            : <Feather name="chevron-right" size={16} color="#ef4444" />}
+                        </Pressable>
+                      )}
+
+                      {(["mattress", "bedsheet", "pillow"] as const).map((item) => {
+                        const submitKey = `${item}Submitted` as "mattressSubmitted" | "bedsheetSubmitted" | "pillowSubmitted";
+                        const taken = !!inv[item] || !!inv[submitKey];
+                        if (!taken) return null;
+                        return (
+                          <Pressable
+                            key={`revoke-${item}`}
+                            disabled={!!actionLoading}
+                            onPress={() => revokeItem(item)}
+                            style={({ pressed }) => [styles.revokeBtnRow, {
+                              backgroundColor: pressed && !actionLoading ? "#fee2e2" : "#fef2f2",
+                              borderColor: "#ef444422",
+                              opacity: actionLoading ? 0.6 : 1,
+                            }]}
+                          >
+                            <View style={[styles.revokeBtnIcon, { backgroundColor: "#ef444412" }]}>
+                              <Feather name="x" size={15} color="#ef4444" />
+                            </View>
+                            <View style={{ flex: 1 }}>
+                              <Text style={styles.revokeBtnTitle}>Revoke {item.charAt(0).toUpperCase() + item.slice(1)}</Text>
+                              <Text style={[styles.revokeBtnSub, { color: theme.textSecondary }]}>
+                                Mark as not given/submitted
+                              </Text>
+                            </View>
+                            {actionLoading === `revoke-${item}`
+                              ? <ActivityIndicator size="small" color="#ef4444" />
+                              : <Feather name="chevron-right" size={16} color="#ef4444" />}
+                          </Pressable>
+                        );
+                      })}
+
+                      {(inv.mattress || inv.bedsheet || inv.pillow || inv.inventoryLocked) && (
+                        <Pressable
+                          disabled={!!actionLoading}
+                          onPress={revokeAllInventory}
+                          style={({ pressed }) => [styles.revokeBtnRow, {
+                            backgroundColor: pressed && !actionLoading ? "#fff7ed" : "#fffbeb",
+                            borderColor: "#f59e0b33",
+                            opacity: actionLoading ? 0.6 : 1,
+                          }]}
+                        >
+                          <View style={[styles.revokeBtnIcon, { backgroundColor: "#f59e0b18" }]}>
+                            <Feather name="unlock" size={15} color="#f59e0b" />
+                          </View>
+                          <View style={{ flex: 1 }}>
+                            <Text style={[styles.revokeBtnTitle, { color: "#92400e" }]}>Unlock & Reset Inventory</Text>
+                            <Text style={[styles.revokeBtnSub, { color: theme.textSecondary }]}>
+                              Clears all submissions for this student
+                            </Text>
+                          </View>
+                          {actionLoading === "revoke-all"
+                            ? <ActivityIndicator size="small" color="#f59e0b" />
+                            : <Feather name="chevron-right" size={16} color="#f59e0b" />}
+                        </Pressable>
+                      )}
+                    </View>
+                  </View>
+                </>
               )}
 
             </>
@@ -825,6 +983,17 @@ const styles = StyleSheet.create({
   statusLegendValue: { fontSize: 11, fontFamily: "Inter_700Bold" },
   hintBox: { flexDirection: "row", alignItems: "flex-start", gap: 8, padding: 10, borderRadius: 10, borderWidth: 1, marginBottom: 12 },
   hintText: { fontSize: 12, fontFamily: "Inter_400Regular", flex: 1 },
+  // Revoke section
+  revokeCard: { borderRadius: 14, borderWidth: 1, padding: 14, marginTop: 14, marginBottom: 14 },
+  revokeHeader: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },
+  revokeIconCircle: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#fef2f2", borderWidth: 1, borderColor: "#ef444430", alignItems: "center", justifyContent: "center" },
+  revokeCardTitle: { fontSize: 14, fontFamily: "Inter_700Bold" },
+  revokeCardHint: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 1 },
+  revokeBtnGroup: { gap: 8 },
+  revokeBtnRow: { flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 11, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1 },
+  revokeBtnIcon: { width: 32, height: 32, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  revokeBtnTitle: { fontSize: 13, fontFamily: "Inter_700Bold", color: "#991b1b" },
+  revokeBtnSub: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 1, lineHeight: 14 },
   // Student self view
   selfStatusCard: { padding: 20, borderRadius: 14, borderWidth: 1, alignItems: "center", gap: 8, marginBottom: 20 },
   selfStatusText: { fontSize: 18, fontFamily: "Inter_700Bold" },

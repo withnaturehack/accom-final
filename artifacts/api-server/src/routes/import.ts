@@ -54,7 +54,8 @@ router.post("/students", requireSuperAdmin, upload.single("file"), async (req: A
     if (!email || !row.name) { errors.push(`Row missing name/email: ${JSON.stringify(row)}`); skipped++; continue; }
 
     const hostelId = hostelMap[(row.hostelName || "").toLowerCase()] || null;
-    const password = row.password || "123456";
+    const emailPrefix = email.split("@")[0]?.trim() || "";
+    const password = row.password || emailPrefix || "123456";
 
     const [existing] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.email, email));
 
@@ -325,7 +326,8 @@ async function processStaffImport(
       row.Contact ?? row.Phone ?? row.phone ?? "",
     );
     const gender = String(row.Gender ?? row.gender ?? "").trim() || null;
-    const password = String(row.Password ?? row.password ?? "").trim() || "123456";
+    const emailPrefix = email.split("@")[0]?.trim() || "";
+    const password = String(row.Password ?? row.password ?? "").trim() || emailPrefix || "123456";
 
     if (!email || !name) {
       skipped++;

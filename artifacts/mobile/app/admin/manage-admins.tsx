@@ -374,8 +374,23 @@ export default function ManageAdminsScreen() {
 
             {[
               { label: "Full Name *", value: name, onChange: setName, placeholder: "e.g. Ravi Kumar" },
-              { label: "Email *", value: email, onChange: setEmail, placeholder: "user@iitm.ac.in" },
-              { label: "Password *", value: password, onChange: setPassword, placeholder: "Min 6 characters", secure: true },
+              {
+                label: "Email *",
+                value: email,
+                onChange: (v: string) => {
+                  setEmail(v);
+                  const prefix = v.split("@")[0]?.trim() || "";
+                  if (prefix) setPassword(prefix);
+                },
+                placeholder: "23f3000358@es.study.iitm.ac.in",
+              },
+              {
+                label: "Password * (auto-filled from email prefix)",
+                value: password,
+                onChange: setPassword,
+                placeholder: "e.g. 23f3000358",
+                secure: false,
+              },
             ].map((f) => (
               <View key={f.label}>
                 <Text style={[styles.fieldLabel, { color: theme.textSecondary }]}>{f.label}</Text>
@@ -387,9 +402,13 @@ export default function ManageAdminsScreen() {
                   onChangeText={f.onChange}
                   secureTextEntry={(f as any).secure}
                   autoCapitalize="none"
+                  autoCorrect={false}
                 />
               </View>
             ))}
+            <Text style={{ color: theme.textTertiary, fontSize: 11, fontFamily: "Inter_400Regular", marginTop: -8, marginBottom: 8 }}>
+              Tip: Password defaults to the email prefix (everything before <Text style={{ fontFamily: "Inter_700Bold" }}>@</Text>). Edit it manually if you need a custom one.
+            </Text>
 
             {hostels && (hostels as any[]).length > 0 && (
               <>
@@ -561,7 +580,7 @@ export default function ManageAdminsScreen() {
             <View style={{ backgroundColor: "#0EA5E915", borderColor: "#0EA5E940", borderWidth: 1, borderRadius: 10, padding: 12, flexDirection: "row", gap: 10 }}>
               <Feather name="info" size={16} color="#0EA5E9" style={{ marginTop: 2 }} />
               <Text style={{ flex: 1, color: theme.text, fontFamily: "Inter_400Regular", fontSize: 12, lineHeight: 18 }}>
-                Roles accepted: Super Admin, Admin, Coordinator, Volunteer. Default password is <Text style={{ fontFamily: "Inter_700Bold" }}>123456</Text> if not provided.
+                Roles accepted: Super Admin, Admin, Coordinator, Volunteer. Default password is the <Text style={{ fontFamily: "Inter_700Bold" }}>email prefix</Text> (e.g. <Text style={{ fontFamily: "Inter_700Bold" }}>23f3000358</Text> for <Text style={{ fontFamily: "Inter_700Bold" }}>23f3000358@es.study.iitm.ac.in</Text>) if not provided.
                 Existing accounts (matched by email) are updated; new ones are created.
               </Text>
             </View>
