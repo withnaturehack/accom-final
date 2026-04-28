@@ -56,7 +56,8 @@ export default function ManageAdminsScreen() {
   const [newPassword, setNewPassword] = useState("");
   const [searchQ, setSearchQ] = useState("");
   const [csvText, setCsvText] = useState("");
-  const [importResult, setImportResult] = useState<{updated:number,created:number,skipped:number}|null>(null);
+  const [purgeFirst, setPurgeFirst] = useState(false);
+  const [importResult, setImportResult] = useState<{purged?:number;updated:number;created:number;skipped:number;errors?:string[]}|null>(null);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -122,15 +123,19 @@ export default function ManageAdminsScreen() {
     },
   });
 
-  const importMessMutation = useMutation({
-    mutationFn: async (rows: {roll:string,name:string,mess:string}[]) =>
-      request("/import/mess-by-roll-json", { method: "POST", body: JSON.stringify({ rows }) }),
+  const importStaffMutation = useMutation({
+    mutationFn: async ({ csv, purge }: { csv: string; purge: boolean }) =>
+      request(`/import/staff?purge=${purge ? "true" : "false"}`, {
+        method: "POST",
+        body: JSON.stringify({ csv }),
+      }),
     onSuccess: (res: any) => {
       setImportResult(res);
-      queryClient.invalidateQueries({ queryKey: ["master-students"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.refetchQueries({ queryKey: ["admin-users"] });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     },
-    onError: (e: any) => Alert.alert("Import Error", e.message),
+    onError: (e: any) => Alert.alert("Import Error", e.message || "Failed to import staff CSV"),
   });
 
   const resetPwMutation = useMutation({
@@ -539,59 +544,121 @@ export default function ManageAdminsScreen() {
         </View>
       </Modal>
 
-      {/* Import Mess-Only Students Modal */}
+      {/* Bulk Import Staff Modal */}
       <Modal visible={showImportModal} animationType="slide" onRequestClose={() => setShowImportModal(false)}>
         <View style={[styles.modal, { backgroundColor: theme.background }]}>
           <View style={[styles.modalHeader, { borderColor: theme.border, paddingTop: (isWeb ? 20 : insets.top) + 12 }]}>
             <View>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>Import Mess Students</Text>
-              <Text style={[styles.modalSub, { color: theme.textSecondary }]}>Paste CSV: Roll no., Name of the Student, Allotted Mess</Text>
+              <Text style={[styles.modalTitle, { color: theme.text }]}>Bulk Import Staff</Text>
+              <Text style={[styles.modalSub, { color: theme.textSecondary }]}>CSV columns: Email, Name, Contact Number, Gender, Role</Text>
             </View>
             <Pressable onPress={() => setShowImportModal(false)} hitSlop={8}>
               <Feather name="x" size={24} color={theme.text} />
             </Pressable>
           </View>
-          <ScrollView contentContainerStyle={[styles.modalBody, { gap: 12 }]}>
-            <Text style={[styles.fieldLabel, { color: theme.text }]}>Paste CSV content below:</Text>
+          <ScrollView contentContainerStyle={[styles.modalBody, { gap: 12 }]} keyboardShouldPersistTaps="handled">
+
+            <View style={{ backgroundColor: "#0EA5E915", borderColor: "#0EA5E940", borderWidth: 1, borderRadius: 10, padding: 12, flexDirection: "row", gap: 10 }}>
+              <Feather name="info" size={16} color="#0EA5E9" style={{ marginTop: 2 }} />
+              <Text style={{ flex: 1, color: theme.text, fontFamily: "Inter_400Regular", fontSize: 12, lineHeight: 18 }}>
+                Roles accepted: Super Admin, Admin, Coordinator, Volunteer. Default password is <Text style={{ fontFamily: "Inter_700Bold" }}>123456</Text> if not provided.
+                Existing accounts (matched by email) are updated; new ones are created.
+              </Text>
+            </View>
+
+            {isWeb && (
+              <Pressable
+                onPress={() => {
+                  const input = document.createElement("input");
+                  input.type = "file";
+                  input.accept = ".csv,text/csv";
+                  input.onchange = async (e: any) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const text = await file.text();
+                    setCsvText(text);
+                  };
+                  input.click();
+                }}
+                style={[styles.checkRow, { borderColor: theme.tint, backgroundColor: theme.tint + "10", justifyContent: "center" }]}
+              >
+                <Feather name="upload" size={16} color={theme.tint} />
+                <Text style={[styles.checkLabel, { color: theme.tint }]}>Choose CSV File</Text>
+              </Pressable>
+            )}
+
+            <Text style={[styles.fieldLabel, { color: theme.text }]}>Or paste CSV content:</Text>
             <TextInput
               style={[styles.input, { color: theme.text, borderColor: theme.border, backgroundColor: theme.surface, height: 220, textAlignVertical: "top", fontFamily: "Inter_400Regular", fontSize: 12 }]}
               value={csvText}
               onChangeText={setCsvText}
               multiline
-              placeholder={"Roll no.,Name of the Student,Allotted Mess\n24f2004962,Student Name,Mess 1\n..."}
+              placeholder={"Email,Name,Contact Number,Gender,Role\n21f3003255@ds.study.iitm.ac.in,Astitva Vats,8840585790,Male,Super Admin\n..."}
               placeholderTextColor={theme.textTertiary}
               autoCorrect={false}
               autoCapitalize="none"
             />
+
+            <Pressable
+              onPress={() => setPurgeFirst(p => !p)}
+              style={[styles.checkRow, {
+                borderColor: purgeFirst ? "#EF4444" : theme.border,
+                backgroundColor: purgeFirst ? "#EF444412" : theme.surface,
+              }]}
+            >
+              <Feather name={purgeFirst ? "check-square" : "square"} size={18} color={purgeFirst ? "#EF4444" : theme.textTertiary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.checkLabel, { color: purgeFirst ? "#EF4444" : theme.text, fontFamily: "Inter_600SemiBold" }]}>
+                  Replace all existing staff
+                </Text>
+                <Text style={{ color: theme.textTertiary, fontSize: 11, fontFamily: "Inter_400Regular" }}>
+                  Deletes every volunteer/admin/super-admin (except you) before importing.
+                </Text>
+              </View>
+            </Pressable>
+
             {importResult && (
               <View style={{ backgroundColor: "#14532D22", borderRadius: 10, padding: 14, gap: 4 }}>
                 <Text style={{ color: "#22C55E", fontFamily: "Inter_700Bold", fontSize: 14 }}>Import Complete</Text>
-                <Text style={{ color: theme.textSecondary, fontFamily: "Inter_400Regular" }}>Updated: {importResult.updated} · Created: {importResult.created} · Skipped: {importResult.skipped}</Text>
+                <Text style={{ color: theme.textSecondary, fontFamily: "Inter_400Regular", fontSize: 12 }}>
+                  {importResult.purged ? `Purged: ${importResult.purged} · ` : ""}
+                  Created: {importResult.created} · Updated: {importResult.updated} · Skipped: {importResult.skipped}
+                </Text>
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <Text style={{ color: "#EF4444", fontFamily: "Inter_400Regular", fontSize: 11, marginTop: 4 }}>
+                    {importResult.errors.slice(0, 3).join("\n")}
+                  </Text>
+                )}
               </View>
             )}
+
             <Pressable
               onPress={() => {
                 setImportResult(null);
-                const lines = csvText.trim().split("\n").filter(Boolean);
-                if (lines.length < 2) { Alert.alert("Error", "Need at least one data row plus header"); return; }
-                const headers = lines[0].split(",").map(h => h.trim().toLowerCase());
-                const rollIdx = headers.findIndex(h => h.includes("roll"));
-                const nameIdx = headers.findIndex(h => h.includes("name") || h.includes("student"));
-                const messIdx = headers.findIndex(h => h.includes("mess") || h.includes("allot"));
-                if (rollIdx < 0 || messIdx < 0) { Alert.alert("Error", "Cannot find Roll no. or Mess column in CSV header"); return; }
-                const rows = lines.slice(1).map(line => {
-                  const parts = line.split(",").map(p => p.trim());
-                  return { roll: parts[rollIdx] || "", name: nameIdx >= 0 ? parts[nameIdx] || "" : "", mess: parts[messIdx] || "" };
-                }).filter(r => r.roll && r.mess);
-                if (rows.length === 0) { Alert.alert("Error", "No valid rows found"); return; }
-                importMessMutation.mutate(rows);
+                if (!csvText.trim()) { Alert.alert("Error", "Paste or upload some CSV first"); return; }
+                const lineCount = csvText.trim().split("\n").length - 1;
+                const doImport = () => importStaffMutation.mutate({ csv: csvText, purge: purgeFirst });
+                if (purgeFirst) {
+                  Alert.alert(
+                    "Replace All Staff?",
+                    `This will permanently delete every existing volunteer/admin/super-admin (except you) and import ${lineCount} new rows. Continue?`,
+                    [
+                      { text: "Cancel", style: "cancel" },
+                      { text: "Replace", style: "destructive", onPress: doImport },
+                    ],
+                  );
+                } else {
+                  doImport();
+                }
               }}
-              style={[styles.submitBtn, { backgroundColor: "#0EA5E9" }]}
-              disabled={importMessMutation.isPending || !csvText.trim()}
+              style={[styles.submitBtn, { backgroundColor: purgeFirst ? "#EF4444" : "#0EA5E9" }]}
+              disabled={importStaffMutation.isPending || !csvText.trim()}
             >
-              {importMessMutation.isPending
+              {importStaffMutation.isPending
                 ? <ActivityIndicator color="#fff" />
-                : <Text style={styles.submitText}>Import {csvText.trim() ? `(${Math.max(0, csvText.trim().split("\n").length - 1)} rows)` : ""}</Text>
+                : <Text style={styles.submitText}>
+                    {purgeFirst ? "Replace & Import" : "Import"} {csvText.trim() ? `(${Math.max(0, csvText.trim().split("\n").length - 1)} rows)` : ""}
+                  </Text>
               }
             </Pressable>
           </ScrollView>

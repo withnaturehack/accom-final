@@ -84,9 +84,11 @@ workspace/
 - `POST /api/import/students` — bulk import students from CSV (multipart/form-data)
 - `POST /api/import/mess` — bulk mess allocation from CSV
 - `POST /api/import/hostel-assignment` — bulk hostel assignment
+- `POST /api/import/staff?purge=true|false` — bulk import staff (volunteer/coordinator/admin/superadmin) from CSV. Accepts file upload OR JSON `{ csv }` / `{ rows }`. Columns: `Email, Name, Contact Number, Gender, Role`. `purge=true` deletes all existing non-student staff (except the calling user) before importing.
 - `GET /api/import/template/students` — download sample CSV
 - `GET /api/import/template/mess` — download mess template
 - `GET /api/import/template/hostel-assignment` — download hostel template
+- `GET /api/import/template/staff` — download staff CSV template
 
 ### PDF Export (SuperAdmin)
 - `GET /api/pdf/students` — students PDF

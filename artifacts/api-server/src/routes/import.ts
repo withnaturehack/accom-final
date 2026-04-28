@@ -2,7 +2,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import { parse } from "csv-parse/sync";
 import { db, usersTable, hostelsTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { requireSuperAdmin, generateId, AuthRequest } from "../lib/auth.js";
 
@@ -10,6 +10,24 @@ const router = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 function hashPassword(p: string) { return bcrypt.hashSync(p, 10); }
+
+const STAFF_ROLES = ["volunteer", "coordinator", "admin", "superadmin"] as const;
+type StaffRole = typeof STAFF_ROLES[number];
+
+function normalizeStaffRole(raw: string): StaffRole | null {
+  const v = (raw || "").trim().toLowerCase().replace(/\s+/g, " ");
+  if (!v) return null;
+  if (v === "super admin" || v === "superadmin" || v === "super-admin") return "superadmin";
+  if (v === "admin") return "admin";
+  if (v === "coordinator" || v === "co-ordinator") return "coordinator";
+  if (v === "volunteer") return "volunteer";
+  return null;
+}
+
+function cleanPhone(raw: string): string | null {
+  const v = (raw || "").replace(/\s+/g, "").trim();
+  return v || null;
+}
 
 // POST /api/import/students — CSV with columns: name,email,rollNumber,phone,hostelName,roomNumber,assignedMess,area
 router.post("/students", requireSuperAdmin, upload.single("file"), async (req: AuthRequest & Request, res: Response) => {
@@ -269,6 +287,135 @@ router.get("/template/hostel-assignment", requireSuperAdmin, (_req, res) => {
   const csv = "email,hostelName,roomNumber\narjun.kumar@iitm.ac.in,Hostel Gurunath,A-101\npriya.sharma@iitm.ac.in,Hostel Godavari,B-202";
   res.setHeader("Content-Type", "text/csv");
   res.setHeader("Content-Disposition", "attachment; filename=hostel-assignment-template.csv");
+  res.send(csv);
+});
+
+// POST /api/import/staff — CSV with columns: Email, Name, Contact Number, Gender, Role
+// Roles accepted (case-insensitive, trimmed): "Super Admin", "Admin", "Coordinator", "Volunteer"
+// Query: ?purge=true to delete all existing non-student staff (except the calling super admin) before import.
+// Default password = "123456" (or value of `password` field if present in row).
+async function processStaffImport(
+  req: AuthRequest & Request,
+  res: Response,
+  records: any[],
+) {
+  const purge = String(req.query.purge || "").toLowerCase() === "true";
+
+  let purged = 0;
+  if (purge) {
+    const callerId = req.userId;
+    const conditions = [
+      sql`${usersTable.role} IN ('volunteer','coordinator','admin','superadmin')`,
+    ];
+    if (callerId) conditions.push(ne(usersTable.id, callerId));
+    const result = await db.delete(usersTable).where(and(...conditions));
+    purged = result.rowCount || 0;
+  }
+
+  let created = 0, updated = 0, skipped = 0;
+  const errors: string[] = [];
+
+  for (const row of records) {
+    // Support multiple header casings
+    const email = String(row.Email ?? row.email ?? row.EMAIL ?? "").trim().toLowerCase();
+    const name = String(row.Name ?? row.name ?? row.NAME ?? "").trim();
+    const roleRaw = String(row.Role ?? row.role ?? row.ROLE ?? "").trim();
+    const phoneRaw = String(
+      row["Contact Number"] ?? row.contactNumber ?? row.contact_number ??
+      row.Contact ?? row.Phone ?? row.phone ?? "",
+    );
+    const gender = String(row.Gender ?? row.gender ?? "").trim() || null;
+    const password = String(row.Password ?? row.password ?? "").trim() || "123456";
+
+    if (!email || !name) {
+      skipped++;
+      errors.push(`Missing name/email: ${JSON.stringify(row)}`);
+      continue;
+    }
+
+    const role = normalizeStaffRole(roleRaw);
+    if (!role) {
+      skipped++;
+      errors.push(`Unknown role "${roleRaw}" for ${email}`);
+      continue;
+    }
+
+    const phone = cleanPhone(phoneRaw);
+    void gender; // captured for future use; not currently persisted
+
+    const [existing] = await db.select({ id: usersTable.id })
+      .from(usersTable).where(eq(usersTable.email, email));
+
+    if (existing) {
+      await db.update(usersTable).set({
+        name,
+        role,
+        phone: phone || undefined,
+        contactNumber: phone || undefined,
+        isActive: true,
+      }).where(eq(usersTable.id, existing.id));
+      updated++;
+    } else {
+      await db.insert(usersTable).values({
+        id: generateId(),
+        name,
+        email,
+        passwordHash: hashPassword(password),
+        role,
+        phone,
+        contactNumber: phone,
+        isActive: true,
+        assignedHostelIds: "[]",
+      });
+      created++;
+    }
+  }
+
+  res.json({
+    success: true,
+    purged,
+    created,
+    updated,
+    skipped,
+    errors: errors.slice(0, 20),
+  });
+}
+
+router.post("/staff", requireSuperAdmin, upload.single("file"), async (req: AuthRequest & Request, res: Response) => {
+  let records: any[];
+  // Allow either uploaded file OR JSON body { csv: "..." } / { rows: [...] }
+  try {
+    if (req.file) {
+      records = parse(req.file.buffer.toString("utf8"), {
+        columns: true, skip_empty_lines: true, trim: true,
+      });
+    } else if (typeof req.body?.csv === "string" && req.body.csv.trim()) {
+      records = parse(req.body.csv, {
+        columns: true, skip_empty_lines: true, trim: true,
+      });
+    } else if (Array.isArray(req.body?.rows)) {
+      records = req.body.rows;
+    } else {
+      res.status(400).json({ error: "No file or csv/rows provided" });
+      return;
+    }
+  } catch (e: any) {
+    res.status(400).json({ error: "Invalid CSV", message: e.message });
+    return;
+  }
+
+  await processStaffImport(req, res, records);
+});
+
+// GET /api/import/template/staff — download sample staff CSV template
+router.get("/template/staff", requireSuperAdmin, (_req, res) => {
+  const csv =
+    "Email,Name,Contact Number,Gender,Role\n" +
+    "21f3003255@ds.study.iitm.ac.in,Astitva Vats,8840585790,Male,Super Admin\n" +
+    "24f3100093@es.study.iitm.ac.in,Anurag Sharma,7061954624,Male,Admin\n" +
+    "25f2005275@ds.study.iitm.ac.in,Rakshith,8300066003,Male,volunteer";
+  res.setHeader("Content-Type", "text/csv");
+  res.setHeader("Content-Disposition", "attachment; filename=staff-template.csv");
   res.send(csv);
 });
 
