@@ -242,6 +242,14 @@ export default function ProfileScreen() {
         <Feather name="log-out" size={18} color="#ef4444" />
         <Text style={styles.logoutText}>Logout</Text>
       </Pressable>
+
+      {/* Credit */}
+      <View style={styles.creditWrap}>
+        <View style={[styles.creditDivider, { backgroundColor: theme.border }]} />
+        <Text style={[styles.creditText, { color: theme.textTertiary }]}>App made by</Text>
+        <Text style={[styles.creditName, { color: theme.tint }]}>Kartik Chilkoti</Text>
+        <Text style={[styles.creditSub, { color: theme.textTertiary }]}>IIT Madras Paradox · CampusOps</Text>
+      </View>
     </ScrollView>
     </SafeAreaView>
   );
@@ -272,4 +280,9 @@ const styles = StyleSheet.create({
   menuBadgeText: { color: "#fff", fontSize: 10, fontFamily: "Inter_700Bold" },
   managedNote: { flexDirection: "row", alignItems: "center", gap: 6, paddingTop: 10, marginTop: 6, borderTopWidth: 1 },
   managedNoteText: { flex: 1, fontSize: 11, fontFamily: "Inter_400Regular" },
+  creditWrap: { alignItems: "center", marginTop: 24, marginBottom: 8, paddingHorizontal: 20, gap: 4 },
+  creditDivider: { height: 1, width: 60, marginBottom: 12, opacity: 0.6 },
+  creditText: { fontSize: 11, fontFamily: "Inter_400Regular", letterSpacing: 0.5 },
+  creditName: { fontSize: 14, fontFamily: "Inter_700Bold", letterSpacing: 0.3 },
+  creditSub: { fontSize: 10, fontFamily: "Inter_500Medium", marginTop: 2, letterSpacing: 0.4 },
 });

@@ -378,6 +378,63 @@ router.post("/inventory/:studentId/submit", requireVolunteer, async (req: AuthRe
   }
 });
 
+// POST /api/attendance/inventory/:studentId/revoke-item — revoke (un-submit) a single inventory item
+// Available to volunteer / coordinator / admin / superadmin (all use requireVolunteer middleware)
+router.post("/inventory/:studentId/revoke-item", requireVolunteer, async (req: AuthRequest, res) => {
+  const { studentId } = req.params;
+  const { item } = req.body; // "mattress" | "bedsheet" | "pillow"
+
+  if (!["mattress", "bedsheet", "pillow"].includes(item)) {
+    res.status(400).json({ message: "item must be mattress, bedsheet, or pillow" }); return;
+  }
+
+  const [existing] = await db.select().from(studentInventoryTable).where(eq(studentInventoryTable.studentId, studentId));
+  if (!existing) {
+    res.status(404).json({ message: "No inventory record" }); return;
+  }
+
+  const submittedField = `${item}Submitted` as "mattressSubmitted" | "bedsheetSubmitted" | "pillowSubmitted";
+
+  // Reset both the "given" and "submitted" flag for this item, and unlock the inventory if it was locked.
+  const [record] = await db.update(studentInventoryTable).set({
+    [item]: false,
+    [submittedField]: false,
+    inventoryLocked: false,
+    lockedBy: null,
+    lockedAt: null,
+    updatedBy: req.userId!,
+    updatedAt: new Date(),
+  } as any).where(eq(studentInventoryTable.studentId, studentId)).returning();
+
+  res.json({ ...record, lockedAt: record.lockedAt?.toISOString() || null });
+});
+
+// POST /api/attendance/inventory/:studentId/revoke — unlock the entire inventory submission
+router.post("/inventory/:studentId/revoke", requireVolunteer, async (req: AuthRequest, res) => {
+  const { studentId } = req.params;
+
+  const [existing] = await db.select().from(studentInventoryTable).where(eq(studentInventoryTable.studentId, studentId));
+  if (!existing) {
+    res.status(404).json({ message: "No inventory record" }); return;
+  }
+
+  const [record] = await db.update(studentInventoryTable).set({
+    mattress: false,
+    bedsheet: false,
+    pillow: false,
+    mattressSubmitted: false,
+    bedsheetSubmitted: false,
+    pillowSubmitted: false,
+    inventoryLocked: false,
+    lockedBy: null,
+    lockedAt: null,
+    updatedBy: req.userId!,
+    updatedAt: new Date(),
+  }).where(eq(studentInventoryTable.studentId, studentId)).returning();
+
+  res.json({ ...record, lockedAt: null, revoked: true });
+});
+
 // PATCH /api/attendance/mess-card/:studentId — toggle mess card given
 router.patch("/mess-card/:studentId", requireVolunteer, async (req: AuthRequest, res) => {
   const { studentId } = req.params;

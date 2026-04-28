@@ -48,8 +48,13 @@ const STATUS_META = {
 };
 
 // ─── Student Detail Modal ──────────────────────────────────────────────────────
-function InventoryStudentModal({ student, visible, onClose, theme }: {
+function InventoryStudentModal({ student, visible, onClose, theme, canRevoke, onRevokeItem, onRevokeAll, onRevokeCheckin, busy }: {
   student: any; visible: boolean; onClose: () => void; theme: any;
+  canRevoke: boolean;
+  onRevokeItem: (item: "mattress" | "bedsheet" | "pillow") => void;
+  onRevokeAll: () => void;
+  onRevokeCheckin: () => void;
+  busy: boolean;
 }) {
   if (!student) return null;
   const inv = student.inventory || {};
@@ -139,10 +144,60 @@ function InventoryStudentModal({ student, visible, onClose, theme }: {
                     <Feather name={m.icon} size={22} color={m.color} />
                     <Text style={[imd.inventoryLabel, { color: theme.text }]}>{label}</Text>
                     <Text style={[imd.inventoryStatus, { color: m.color }]}>{m.label}</Text>
+                    {canRevoke && (given || submitted) && (
+                      <Pressable
+                        disabled={busy}
+                        onPress={() => onRevokeItem(key)}
+                        style={({ pressed }) => [imd.itemRevokeBtn, { opacity: pressed || busy ? 0.6 : 1 }]}
+                        hitSlop={6}
+                      >
+                        <Feather name="rotate-ccw" size={11} color="#ef4444" />
+                        <Text style={imd.itemRevokeText}>Revoke</Text>
+                      </Pressable>
+                    )}
                   </View>
                 );
               })}
             </View>
+
+            {/* Revoke / Reset section — visible to volunteer / admin / superadmin */}
+            {canRevoke && (
+              <View style={[imd.revokeSection, { borderColor: "#ef444435", backgroundColor: "#fef2f2" }]}>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 6 }}>
+                  <Feather name="alert-triangle" size={13} color="#ef4444" />
+                  <Text style={imd.revokeTitle}>Revoke / Reset</Text>
+                </View>
+                <Text style={imd.revokeHint}>
+                  Undo a check-in/check-out or unlock submitted inventory. Use only when correcting a mistake.
+                </Text>
+                <View style={{ flexDirection: "row", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                  {!!student.checkInTime && (
+                    <Pressable
+                      disabled={busy}
+                      onPress={onRevokeCheckin}
+                      style={({ pressed }) => [imd.revokeBtn, { opacity: pressed || busy ? 0.6 : 1, backgroundColor: "#ef4444" }]}
+                    >
+                      {busy
+                        ? <ActivityIndicator size="small" color="#fff" />
+                        : <Feather name="rotate-ccw" size={13} color="#fff" />}
+                      <Text style={imd.revokeBtnText}>Revoke Check-in/out</Text>
+                    </Pressable>
+                  )}
+                  {(isLocked || hasAnyGiven(inv)) && (
+                    <Pressable
+                      disabled={busy}
+                      onPress={onRevokeAll}
+                      style={({ pressed }) => [imd.revokeBtn, { opacity: pressed || busy ? 0.6 : 1, backgroundColor: "#fff", borderWidth: 1.5, borderColor: "#ef4444" }]}
+                    >
+                      {busy
+                        ? <ActivityIndicator size="small" color="#ef4444" />
+                        : <Feather name="unlock" size={13} color="#ef4444" />}
+                      <Text style={[imd.revokeBtnText, { color: "#ef4444" }]}>Unlock Inventory</Text>
+                    </Pressable>
+                  )}
+                </View>
+              </View>
+            )}
 
             {/* Check-in/out — always shown */}
             <Text style={[imd.sectionTitle, { color: theme.text }]}>Attendance Today</Text>
@@ -219,6 +274,7 @@ export default function InventoryTableScreen({ showBack = true }: { showBack?: b
   const { isVolunteer, isSuperAdmin, user } = useAuth();
   const qc = useQueryClient();
   const [exporting, setExporting] = useState(false);
+  const [revoking, setRevoking] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -643,6 +699,47 @@ export default function InventoryTableScreen({ showBack = true }: { showBack?: b
         visible={!!selectedStudent}
         onClose={() => setSelectedStudent(null)}
         theme={theme}
+        canRevoke={user?.role === "volunteer" || user?.role === "admin" || user?.role === "coordinator" || user?.role === "superadmin"}
+        busy={revoking}
+        onRevokeItem={async (item) => {
+          if (!selectedStudent) return;
+          const confirmMsg = `Revoke "${item}" submission for ${selectedStudent.name}? This will mark the item as not given.`;
+          const ok = Platform.OS === "web" ? globalThis.confirm(confirmMsg) : await new Promise<boolean>((r) => Alert.alert("Revoke item", confirmMsg, [{ text: "Cancel", style: "cancel", onPress: () => r(false) }, { text: "Revoke", style: "destructive", onPress: () => r(true) }]));
+          if (!ok) return;
+          setRevoking(true);
+          try {
+            await request(`/attendance/inventory/${selectedStudent.id}/revoke-item`, { method: "POST", body: JSON.stringify({ item }) });
+            await refetch();
+            setSelectedStudent((prev: any) => prev ? { ...prev, inventory: { ...(prev.inventory || {}), [item]: false, [`${item}Submitted`]: false, inventoryLocked: false } } : prev);
+          } catch (e: any) { Alert.alert("Revoke failed", e?.message || "Try again"); }
+          setRevoking(false);
+        }}
+        onRevokeAll={async () => {
+          if (!selectedStudent) return;
+          const confirmMsg = `Unlock and reset ALL inventory for ${selectedStudent.name}? This will clear all submissions.`;
+          const ok = Platform.OS === "web" ? globalThis.confirm(confirmMsg) : await new Promise<boolean>((r) => Alert.alert("Unlock inventory", confirmMsg, [{ text: "Cancel", style: "cancel", onPress: () => r(false) }, { text: "Unlock", style: "destructive", onPress: () => r(true) }]));
+          if (!ok) return;
+          setRevoking(true);
+          try {
+            await request(`/attendance/inventory/${selectedStudent.id}/revoke`, { method: "POST", body: JSON.stringify({}) });
+            await refetch();
+            setSelectedStudent((prev: any) => prev ? { ...prev, inventory: { mattress: false, bedsheet: false, pillow: false, mattressSubmitted: false, bedsheetSubmitted: false, pillowSubmitted: false, inventoryLocked: false } } : prev);
+          } catch (e: any) { Alert.alert("Unlock failed", e?.message || "Try again"); }
+          setRevoking(false);
+        }}
+        onRevokeCheckin={async () => {
+          if (!selectedStudent) return;
+          const confirmMsg = `Revoke today's check-in/check-out for ${selectedStudent.name}? Inventory will also be reset.`;
+          const ok = Platform.OS === "web" ? globalThis.confirm(confirmMsg) : await new Promise<boolean>((r) => Alert.alert("Revoke check-in", confirmMsg, [{ text: "Cancel", style: "cancel", onPress: () => r(false) }, { text: "Revoke", style: "destructive", onPress: () => r(true) }]));
+          if (!ok) return;
+          setRevoking(true);
+          try {
+            await request(`/checkins/${selectedStudent.id}/today`, { method: "DELETE" });
+            await refetch();
+            setSelectedStudent(null);
+          } catch (e: any) { Alert.alert("Revoke failed", e?.message || "Try again"); }
+          setRevoking(false);
+        }}
       />
 
       {/* Shift lock overlay */}
@@ -764,6 +861,13 @@ const imd = StyleSheet.create({
   inventoryItem: { flex: 1, borderRadius: 12, borderWidth: 1, paddingVertical: 14, alignItems: "center", gap: 5 },
   inventoryLabel: { fontSize: 12, fontFamily: "Inter_700Bold" },
   inventoryStatus: { fontSize: 10, fontFamily: "Inter_600SemiBold" },
+  itemRevokeBtn: { flexDirection: "row", alignItems: "center", gap: 3, marginTop: 4, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: "#ef444450", backgroundColor: "#fff" },
+  itemRevokeText: { fontSize: 9, fontFamily: "Inter_700Bold", color: "#ef4444" },
+  revokeSection: { borderRadius: 12, borderWidth: 1, padding: 12, marginBottom: 14 },
+  revokeTitle: { fontSize: 13, fontFamily: "Inter_700Bold", color: "#ef4444" },
+  revokeHint: { fontSize: 11, fontFamily: "Inter_400Regular", color: "#7f1d1d", lineHeight: 16 },
+  revokeBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 10 },
+  revokeBtnText: { fontSize: 12, fontFamily: "Inter_700Bold", color: "#fff" },
   infoCard: { borderRadius: 12, borderWidth: 1, padding: 12, marginBottom: 12 },
   infoRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 6 },
   infoLabel: { fontSize: 12, fontFamily: "Inter_400Regular", width: 72 },
