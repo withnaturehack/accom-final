@@ -1,0 +1,222 @@
+Note: /home/expo/workingdir/build/node_modules/.pnpm/expo-modules-core@55.0.23_react-native-worklets@0.7.4_@babel+core@7.29.0_react-native@0_864a7886491ccf7fc6f2b7eb44867460/node_modules/expo-modules-core/android/src/main/java/expo/modules/adapters/react/ModuleRegistryAdapter.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+> Task :expo-modules-core:processReleaseJavaRes
+> Task :expo-modules-core:bundleLibCompileToJarRelease
+> Task :expo-modules-core:bundleLibRuntimeToJarRelease
+> Task :expo-modules-core:generateReleaseLintModel
+> Task :expo-modules-core:bundleLibRuntimeToDirRelease
+> Task :expo-structured-headers:compileReleaseKotlin NO-SOURCE
+> Task :expo-json-utils:compileReleaseKotlin
+> Task :expo-eas-client:compileReleaseKotlin
+> Task :expo-constants:compileReleaseKotlin
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-constants@55.0.15_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0_/node_modules/expo-constants/android/src/main/java/expo/modules/constants/ConstantsModule.kt:13:5 'fun Constants(legacyConstantsProvider: () -> Map<String, Any?>): Unit' is deprecated. Use `Constant` or `Property` instead.
+> Task :expo-json-utils:compileReleaseJavaWithJavac
+> Task :expo-eas-client:compileReleaseJavaWithJavac
+> Task :expo-json-utils:bundleLibCompileToJarRelease
+> Task :expo-eas-client:bundleLibCompileToJarRelease
+> Task :expo-constants:compileReleaseJavaWithJavac
+> Task :expo-constants:bundleLibCompileToJarRelease
+> Task :expo-structured-headers:compileReleaseJavaWithJavac
+> Task :expo-structured-headers:bundleLibCompileToJarRelease
+> Task :expo-constants:bundleLibRuntimeToDirRelease
+> Task :expo-updates-interface:compileReleaseKotlin
+> Task :expo-eas-client:bundleLibRuntimeToDirRelease
+> Task :expo-json-utils:bundleLibRuntimeToDirRelease
+> Task :expo-log-box:compileReleaseKotlin
+> Task :expo-structured-headers:bundleLibRuntimeToDirRelease
+> Task :expo-updates-interface:compileReleaseJavaWithJavac
+> Task :expo-updates-interface:bundleLibCompileToJarRelease
+> Task :expo-updates-interface:bundleLibRuntimeToDirRelease
+> Task :expo-constants:bundleLibRuntimeToJarRelease
+> Task :expo-eas-client:bundleLibRuntimeToJarRelease
+> Task :expo-json-utils:bundleLibRuntimeToJarRelease
+> Task :expo-structured-headers:bundleLibRuntimeToJarRelease
+> Task :expo-log-box:compileReleaseJavaWithJavac
+> Task :expo-log-box:bundleLibCompileToJarRelease
+> Task :expo-log-box:bundleLibRuntimeToDirRelease
+> Task :expo-log-box:bundleLibRuntimeToJarRelease
+> Task :expo-manifests:compileReleaseKotlin
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-manifests@55.0.16_expo@55.0.17/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/EmbeddedManifest.kt:19:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-manifests@55.0.16_expo@55.0.17/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/EmbeddedManifest.kt:19:86 'fun getLegacyID(): String' is deprecated. Prefer scopeKey or projectId depending on use case.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-manifests@55.0.16_expo@55.0.17/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/ExpoUpdatesManifest.kt:16:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-manifests@55.0.16_expo@55.0.17/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/Manifest.kt:13:3 Deprecations and opt-ins on a method overridden from 'Any' may not be reported.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-manifests@55.0.16_expo@55.0.17/node_modules/expo-manifests/android/src/main/java/expo/modules/manifests/core/Manifest.kt:15:12 'fun getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters.
+> Task :expo-updates-interface:bundleLibRuntimeToJarRelease
+> Task :expo-constants:processReleaseJavaRes
+> Task :expo-constants:createFullJarRelease
+> Task :expo-eas-client:processReleaseJavaRes
+> Task :expo-eas-client:createFullJarRelease
+> Task :expo-json-utils:processReleaseJavaRes
+> Task :expo-json-utils:createFullJarRelease
+> Task :expo-log-box:processReleaseJavaRes
+> Task :expo-modules-core:createFullJarRelease
+> Task :expo-log-box:createFullJarRelease
+> Task :expo-manifests:compileReleaseJavaWithJavac
+> Task :expo-manifests:bundleLibCompileToJarRelease
+> Task :expo-eas-client:generateReleaseLintModel
+> Task :expo-constants:generateReleaseLintModel
+> Task :expo-manifests:bundleLibRuntimeToDirRelease
+> Task :expo-json-utils:generateReleaseLintModel
+> Task :expo-manifests:bundleLibRuntimeToJarRelease
+> Task :expo-manifests:processReleaseJavaRes
+> Task :expo-manifests:createFullJarRelease
+> Task :expo-log-box:generateReleaseLintModel
+> Task :expo-structured-headers:processReleaseJavaRes NO-SOURCE
+> Task :expo-structured-headers:createFullJarRelease
+> Task :expo-manifests:generateReleaseLintModel
+> Task :expo-updates-interface:processReleaseJavaRes
+> Task :expo-updates-interface:createFullJarRelease
+> Task :expo-updates-interface:generateReleaseLintModel
+> Task :expo-modules-core:extractReleaseAnnotations
+> Task :expo-modules-core:mergeReleaseGeneratedProguardFiles
+> Task :expo-modules-core:mergeReleaseConsumerProguardFiles
+> Task :expo-modules-core:mergeReleaseJavaResource
+> Task :expo-structured-headers:generateReleaseLintModel
+> Task :expo-log-box:extractReleaseAnnotations
+> Task :expo-log-box:mergeReleaseGeneratedProguardFiles
+> Task :expo-log-box:mergeReleaseConsumerProguardFiles
+> Task :expo-log-box:mergeReleaseJavaResource
+> Task :expo-modules-core:syncReleaseLibJars
+> Task :expo-log-box:syncReleaseLibJars
+> Task :expo-log-box:bundleReleaseLocalLintAar
+> Task :expo-constants:extractReleaseAnnotations
+> Task :expo-constants:mergeReleaseGeneratedProguardFiles
+> Task :expo-modules-core:bundleReleaseLocalLintAar
+> Task :expo-constants:mergeReleaseConsumerProguardFiles
+> Task :expo-constants:mergeReleaseJavaResource
+> Task :expo-constants:syncReleaseLibJars
+> Task :expo-constants:bundleReleaseLocalLintAar
+> Task :expo-eas-client:extractReleaseAnnotations
+> Task :expo-eas-client:mergeReleaseGeneratedProguardFiles
+> Task :expo-eas-client:mergeReleaseConsumerProguardFiles
+> Task :expo-eas-client:mergeReleaseJavaResource
+> Task :expo-eas-client:syncReleaseLibJars
+> Task :expo-eas-client:bundleReleaseLocalLintAar
+> Task :expo-manifests:extractReleaseAnnotations
+> Task :expo-manifests:mergeReleaseGeneratedProguardFiles
+> Task :expo-manifests:mergeReleaseConsumerProguardFiles
+> Task :expo-json-utils:extractReleaseAnnotations
+> Task :expo-manifests:mergeReleaseJavaResource
+> Task :expo-json-utils:mergeReleaseGeneratedProguardFiles
+> Task :expo-manifests:syncReleaseLibJars
+> Task :expo-json-utils:mergeReleaseConsumerProguardFiles
+> Task :expo-manifests:bundleReleaseLocalLintAar
+> Task :expo-json-utils:mergeReleaseJavaResource
+> Task :expo-json-utils:syncReleaseLibJars
+> Task :expo-structured-headers:extractReleaseAnnotations
+> Task :expo-structured-headers:mergeReleaseGeneratedProguardFiles
+> Task :expo-structured-headers:mergeReleaseConsumerProguardFiles
+> Task :expo-json-utils:bundleReleaseLocalLintAar
+> Task :expo-structured-headers:mergeReleaseJavaResource
+> Task :expo-structured-headers:syncReleaseLibJars
+> Task :expo-updates-interface:extractReleaseAnnotations
+> Task :expo-structured-headers:bundleReleaseLocalLintAar
+> Task :expo-updates-interface:mergeReleaseGeneratedProguardFiles
+> Task :expo-updates-interface:mergeReleaseConsumerProguardFiles
+> Task :expo-updates-interface:mergeReleaseJavaResource
+> Task :expo-updates-interface:syncReleaseLibJars
+> Task :expo-updates-interface:bundleReleaseLocalLintAar
+> Task :expo-constants:lintVitalAnalyzeRelease
+> Task :expo-eas-client:lintVitalAnalyzeRelease
+> Task :expo-manifests:lintVitalAnalyzeRelease
+> Task :expo-json-utils:lintVitalAnalyzeRelease
+> Task :expo-updates-interface:lintVitalAnalyzeRelease
+> Task :expo-constants:generateReleaseLintVitalModel
+> Task :expo-eas-client:generateReleaseLintVitalModel
+> Task :expo-json-utils:generateReleaseLintVitalModel
+> Task :expo-log-box:generateReleaseLintVitalModel
+> Task :expo-manifests:generateReleaseLintVitalModel
+> Task :expo-structured-headers:lintVitalAnalyzeRelease
+> Task :expo-structured-headers:generateReleaseLintVitalModel
+> Task :expo-modules-core:generateReleaseLintVitalModel
+> Task :expo-updates-interface:generateReleaseLintVitalModel
+> Task :expo-log-box:lintVitalAnalyzeRelease
+> Task :expo-updates:kspReleaseKotlin
+> Task :expo-modules-core:lintVitalAnalyzeRelease
+> Task :react-native-gesture-handler:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :app:configureCMakeRelWithDebInfo[armeabi-v7a]
+> Task :react-native-gesture-handler:configureCMakeRelWithDebInfo[x86]
+> Task :app:configureCMakeRelWithDebInfo[x86]
+> Task :react-native-gesture-handler:configureCMakeRelWithDebInfo[x86_64]
+> Task :app:configureCMakeRelWithDebInfo[x86_64]
+> Task :expo-updates:compileReleaseKotlin
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/UpdatesConfiguration.kt:322:13 'fun get(p0: String!): Any?' is deprecated. Deprecated in Java.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/UpdatesDevLauncherController.kt:207:133 'fun getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/UpdatesModule.kt:49:5 'fun Constants(legacyConstantsProvider: () -> Map<String, Any?>): Unit' is deprecated. Use `Constant` or `Property` instead.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/UpdatesModule.kt:98:38 'fun toString(): String' is deprecated. Prefer to use specific field getters.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/db/Converters.kt:56:30 Java type mismatch: inferred type is 'ByteArray?', but 'ByteArray' was expected.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/db/DatabaseIntegrityCheck.kt:38:39 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/db/Reaper.kt:50:41 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/db/Reaper.kt:68:41 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/loader/Loader.kt:246:63 Java type mismatch: inferred type is 'String?', but 'String' was expected.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/loader/LoaderTask.kt:365:101 'fun getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/manifest/EmbeddedUpdate.kt:33:89 'fun getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/manifest/ExpoUpdatesUpdate.kt:37:92 'fun getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/procedures/CheckForUpdateProcedure.kt:141:100 'fun getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/procedures/CheckForUpdateProcedure.kt:174:100 'fun getRawJson(): JSONObject' is deprecated. Prefer to use specific field getters.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/procedures/StartupProcedure.kt:161:36 'fun getCurrentState(): UpdatesStateValue' is deprecated. Avoid needing to access current state to know how to transition to next state.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/procedures/StartupProcedure.kt:195:34 'fun getCurrentState(): UpdatesStateValue' is deprecated. Avoid needing to access current state to know how to transition to next state.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo-updates@55.0.21_expo@55.0.17_react-native@0.83.6_@babel+core@7.29.0_@types+react@19.2.14_react@19.2.0__react@19.2.0/node_modules/expo-updates/android/src/main/java/expo/modules/updates/procedures/StateMachineSerialExecutorQueue.kt:64:45 'fun getCurrentState(): UpdatesStateValue' is deprecated. Avoid needing to access current state to know how to transition to next state.
+> Task :app:checkReleaseAarMetadata
+> Task :app:mapReleaseSourceSetPaths
+> Task :expo-updates:compileReleaseJavaWithJavac
+> Task :expo-updates:processReleaseJavaRes
+> Task :expo-updates:bundleLibRuntimeToJarRelease
+> Task :expo-updates:bundleLibCompileToJarRelease
+> Task :expo-updates:bundleLibRuntimeToDirRelease
+> Task :expo-updates:generateReleaseLintModel
+> Task :expo-updates:createFullJarRelease
+> Task :expo-updates:extractReleaseAnnotations
+> Task :expo-updates:mergeReleaseGeneratedProguardFiles
+> Task :expo-updates:mergeReleaseConsumerProguardFiles
+> Task :expo-updates:mergeReleaseJavaResource
+> Task :expo-updates:syncReleaseLibJars
+> Task :expo-updates:bundleReleaseLocalLintAar
+> Task :expo-updates:generateReleaseLintVitalModel
+> Task :app:processReleaseMainManifest
+/home/expo/workingdir/build/artifacts/mobile/android/app/src/main/AndroidManifest.xml Warning:
+	provider#expo.modules.filesystem.FileSystemFileProvider@android:authorities was tagged at AndroidManifest.xml:0 to replace other declarations but no other declaration present
+/home/expo/workingdir/build/artifacts/mobile/android/app/src/main/AndroidManifest.xml Warning:
+	activity#expo.modules.imagepicker.ExpoCropImageActivity@android:exported was tagged at AndroidManifest.xml:0 to replace other declarations but no other declaration present
+> Task :app:mergeReleaseResources FAILED
+> Task :app:expoReleaseOverrideMaxSdkConflicts
+---------- Expo Max Sdk Override Plugin ----------
+>>> No 'android:maxSdkVersion' conflicts found
+--------------------------------------------------
+> Task :app:processReleaseManifest
+> Task :expo:compileReleaseKotlin
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo@55.0.17_@babel+core@7.29.0_@expo+dom-webview@55.0.5_@expo+metro-runtime@55.0.10_ex_eaa79ea8e58b094fc2fd07a219b2e20b/node_modules/expo/android/src/main/java/expo/modules/ExpoModulesPackage.kt:34:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo@55.0.17_@babel+core@7.29.0_@expo+dom-webview@55.0.5_@expo+metro-runtime@55.0.10_ex_eaa79ea8e58b094fc2fd07a219b2e20b/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:22:8 'class ReactInstanceManager : Any' is deprecated. Deprecated in Java.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo@55.0.17_@babel+core@7.29.0_@expo+dom-webview@55.0.5_@expo+metro-runtime@55.0.10_ex_eaa79ea8e58b094fc2fd07a219b2e20b/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:102:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo@55.0.17_@babel+core@7.29.0_@expo+dom-webview@55.0.5_@expo+metro-runtime@55.0.10_ex_eaa79ea8e58b094fc2fd07a219b2e20b/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:102:43 'class ReactInstanceManager : Any' is deprecated. Deprecated in Java.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo@55.0.17_@babel+core@7.29.0_@expo+dom-webview@55.0.5_@expo+metro-runtime@55.0.10_ex_eaa79ea8e58b094fc2fd07a219b2e20b/node_modules/expo/android/src/main/java/expo/modules/ReactActivityDelegateWrapper.kt:103:21 'val reactInstanceManager: ReactInstanceManager' is deprecated. Deprecated in Java.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo@55.0.17_@babel+core@7.29.0_@expo+dom-webview@55.0.5_@expo+metro-runtime@55.0.10_ex_eaa79ea8e58b094fc2fd07a219b2e20b/node_modules/expo/android/src/main/java/expo/modules/fetch/ExpoFetchModule.kt:31:39 'constructor(reactContext: ReactContext): ForwardingCookieHandler' is deprecated. Use the default constructor.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo@55.0.17_@babel+core@7.29.0_@expo+dom-webview@55.0.5_@expo+metro-runtime@55.0.10_ex_eaa79ea8e58b094fc2fd07a219b2e20b/node_modules/expo/android/src/main/java/expo/modules/fetch/NativeResponse.kt:42:16 This declaration overrides a deprecated member but is not marked as deprecated itself. Add the '@Deprecated' annotation or suppress the diagnostic.
+w: file:///home/expo/workingdir/build/node_modules/.pnpm/expo@55.0.17_@babel+core@7.29.0_@expo+dom-webview@55.0.5_@expo+metro-runtime@55.0.10_ex_eaa79ea8e58b094fc2fd07a219b2e20b/node_modules/expo/android/src/main/java/expo/modules/fetch/NativeResponse.kt:44:11 'fun deallocate(): Unit' is deprecated. Use sharedObjectDidRelease() instead.
+> Task :react-native-reanimated:buildCMakeRelWithDebInfo[x86][reanimated]
+> Task :expo-updates:lintVitalAnalyzeRelease
+[Incubating] Problems report is available at: file:///home/expo/workingdir/build/artifacts/mobile/android/build/reports/problems/problems-report.html
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+For more on this, please refer to https://docs.gradle.org/9.0.0/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+749 actionable tasks: 749 executed
+FAILURE: Build failed with an exception.
+* What went wrong:
+Execution failed for task ':app:mergeReleaseResources'.
+> A failure occurred while executing com.android.build.gradle.internal.res.Aapt2CompileRunnable
+   > Android resource compilation failed
+     ERROR: /home/expo/workingdir/build/artifacts/mobile/android/app/build/generated/res/react/release/drawable-mdpi/assets_images_paradoxlogo.png: AAPT: error: file failed to compile.
+         
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+> Get more help at https://help.gradle.org.
+BUILD FAILED in 8m 16s
+Error: Gradle build failed with unknown error. See logs for the "Run gradlew" phase for more information.
+Fail job
+
+1ms
+
+
+Build failed: Gradle build failed with unknown error. See logs for the "Run gradlew" phase for more information.
