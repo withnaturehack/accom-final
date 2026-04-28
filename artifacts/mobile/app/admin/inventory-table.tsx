@@ -139,60 +139,86 @@ function InventoryStudentModal({ student, visible, onClose, theme, canRevoke, on
                 else itemStatus = "yellow";
 
                 const m = STATUS_META[itemStatus];
+                const showRevokeChip = canRevoke && (given || submitted);
                 return (
                   <View key={key} style={[imd.inventoryItem, { backgroundColor: m.bg, borderColor: m.border }]}>
-                    <Feather name={m.icon} size={22} color={m.color} />
-                    <Text style={[imd.inventoryLabel, { color: theme.text }]}>{label}</Text>
-                    <Text style={[imd.inventoryStatus, { color: m.color }]}>{m.label}</Text>
-                    {canRevoke && (given || submitted) && (
+                    {showRevokeChip && (
                       <Pressable
                         disabled={busy}
                         onPress={() => onRevokeItem(key)}
-                        style={({ pressed }) => [imd.itemRevokeBtn, { opacity: pressed || busy ? 0.6 : 1 }]}
-                        hitSlop={6}
+                        style={({ pressed }) => [imd.itemRevokeChip, { opacity: pressed || busy ? 0.55 : 1 }]}
+                        hitSlop={10}
                       >
-                        <Feather name="rotate-ccw" size={11} color="#ef4444" />
-                        <Text style={imd.itemRevokeText}>Revoke</Text>
+                        <Feather name="x" size={11} color="#fff" />
                       </Pressable>
                     )}
+                    <Feather name={m.icon} size={22} color={m.color} />
+                    <Text style={[imd.inventoryLabel, { color: theme.text }]}>{label}</Text>
+                    <Text style={[imd.inventoryStatus, { color: m.color }]}>{m.label}</Text>
                   </View>
                 );
               })}
             </View>
 
-            {/* Revoke / Reset section — visible to volunteer / admin / superadmin */}
-            {canRevoke && (
-              <View style={[imd.revokeSection, { borderColor: "#ef444435", backgroundColor: "#fef2f2" }]}>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 6 }}>
-                  <Feather name="alert-triangle" size={13} color="#ef4444" />
-                  <Text style={imd.revokeTitle}>Revoke / Reset</Text>
+            {/* Revoke / Reset card — visible to volunteer / admin / superadmin */}
+            {canRevoke && (!!student.checkInTime || isLocked || hasAnyGiven(inv)) && (
+              <View style={[imd.revokeCard, { backgroundColor: theme.background, borderColor: theme.border }]}>
+                <View style={imd.revokeHeader}>
+                  <View style={imd.revokeIconCircle}>
+                    <Feather name="rotate-ccw" size={14} color="#ef4444" />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[imd.revokeCardTitle, { color: theme.text }]}>Revoke Actions</Text>
+                    <Text style={[imd.revokeCardHint, { color: theme.textSecondary }]}>
+                      Undo a check-in/check-out or unlock inventory.
+                    </Text>
+                  </View>
+                  {busy && <ActivityIndicator size="small" color="#ef4444" />}
                 </View>
-                <Text style={imd.revokeHint}>
-                  Undo a check-in/check-out or unlock submitted inventory. Use only when correcting a mistake.
-                </Text>
-                <View style={{ flexDirection: "row", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+
+                <View style={imd.revokeBtnGroup}>
                   {!!student.checkInTime && (
                     <Pressable
                       disabled={busy}
                       onPress={onRevokeCheckin}
-                      style={({ pressed }) => [imd.revokeBtn, { opacity: pressed || busy ? 0.6 : 1, backgroundColor: "#ef4444" }]}
+                      style={({ pressed }) => [imd.revokeBtnRow, {
+                        backgroundColor: pressed && !busy ? "#fee2e2" : "#fef2f2",
+                        borderColor: "#ef444433",
+                        opacity: busy ? 0.6 : 1,
+                      }]}
                     >
-                      {busy
-                        ? <ActivityIndicator size="small" color="#fff" />
-                        : <Feather name="rotate-ccw" size={13} color="#fff" />}
-                      <Text style={imd.revokeBtnText}>Revoke Check-in/out</Text>
+                      <View style={[imd.revokeBtnIcon, { backgroundColor: "#ef444418" }]}>
+                        <Feather name="log-out" size={15} color="#ef4444" />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={imd.revokeBtnTitle}>Revoke Check-in / Check-out</Text>
+                        <Text style={[imd.revokeBtnSub, { color: theme.textSecondary }]}>
+                          Clears today&apos;s entry & resets inventory
+                        </Text>
+                      </View>
+                      <Feather name="chevron-right" size={16} color="#ef4444" />
                     </Pressable>
                   )}
                   {(isLocked || hasAnyGiven(inv)) && (
                     <Pressable
                       disabled={busy}
                       onPress={onRevokeAll}
-                      style={({ pressed }) => [imd.revokeBtn, { opacity: pressed || busy ? 0.6 : 1, backgroundColor: "#fff", borderWidth: 1.5, borderColor: "#ef4444" }]}
+                      style={({ pressed }) => [imd.revokeBtnRow, {
+                        backgroundColor: pressed && !busy ? "#fff7ed" : "#fffbeb",
+                        borderColor: "#f59e0b33",
+                        opacity: busy ? 0.6 : 1,
+                      }]}
                     >
-                      {busy
-                        ? <ActivityIndicator size="small" color="#ef4444" />
-                        : <Feather name="unlock" size={13} color="#ef4444" />}
-                      <Text style={[imd.revokeBtnText, { color: "#ef4444" }]}>Unlock Inventory</Text>
+                      <View style={[imd.revokeBtnIcon, { backgroundColor: "#f59e0b18" }]}>
+                        <Feather name="unlock" size={15} color="#f59e0b" />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={[imd.revokeBtnTitle, { color: "#92400e" }]}>Unlock & Reset Inventory</Text>
+                        <Text style={[imd.revokeBtnSub, { color: theme.textSecondary }]}>
+                          Clears all submissions for this student
+                        </Text>
+                      </View>
+                      <Feather name="chevron-right" size={16} color="#f59e0b" />
                     </Pressable>
                   )}
                 </View>
@@ -858,16 +884,28 @@ const imd = StyleSheet.create({
   statusLabel: { fontSize: 13, fontFamily: "Inter_700Bold" },
   sectionTitle: { fontSize: 14, fontFamily: "Inter_700Bold", marginBottom: 10 },
   itemRow: { flexDirection: "row", gap: 8, marginBottom: 14 },
-  inventoryItem: { flex: 1, borderRadius: 12, borderWidth: 1, paddingVertical: 14, alignItems: "center", gap: 5 },
+  inventoryItem: { flex: 1, borderRadius: 12, borderWidth: 1, paddingVertical: 14, alignItems: "center", gap: 5, position: "relative", overflow: "visible" },
   inventoryLabel: { fontSize: 12, fontFamily: "Inter_700Bold" },
   inventoryStatus: { fontSize: 10, fontFamily: "Inter_600SemiBold" },
-  itemRevokeBtn: { flexDirection: "row", alignItems: "center", gap: 3, marginTop: 4, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 6, borderWidth: 1, borderColor: "#ef444450", backgroundColor: "#fff" },
-  itemRevokeText: { fontSize: 9, fontFamily: "Inter_700Bold", color: "#ef4444" },
-  revokeSection: { borderRadius: 12, borderWidth: 1, padding: 12, marginBottom: 14 },
-  revokeTitle: { fontSize: 13, fontFamily: "Inter_700Bold", color: "#ef4444" },
-  revokeHint: { fontSize: 11, fontFamily: "Inter_400Regular", color: "#7f1d1d", lineHeight: 16 },
-  revokeBtn: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 12, paddingVertical: 9, borderRadius: 10 },
-  revokeBtnText: { fontSize: 12, fontFamily: "Inter_700Bold", color: "#fff" },
+  itemRevokeChip: {
+    position: "absolute", top: -6, right: -6,
+    width: 20, height: 20, borderRadius: 10,
+    backgroundColor: "#ef4444",
+    alignItems: "center", justifyContent: "center",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.18, shadowRadius: 2,
+    elevation: 2, zIndex: 5,
+    borderWidth: 1.5, borderColor: "#fff",
+  },
+  revokeCard: { borderRadius: 14, borderWidth: 1, padding: 14, marginBottom: 14 },
+  revokeHeader: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 12 },
+  revokeIconCircle: { width: 32, height: 32, borderRadius: 16, backgroundColor: "#fef2f2", borderWidth: 1, borderColor: "#ef444430", alignItems: "center", justifyContent: "center" },
+  revokeCardTitle: { fontSize: 14, fontFamily: "Inter_700Bold" },
+  revokeCardHint: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 1 },
+  revokeBtnGroup: { gap: 8 },
+  revokeBtnRow: { flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 11, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1 },
+  revokeBtnIcon: { width: 32, height: 32, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  revokeBtnTitle: { fontSize: 13, fontFamily: "Inter_700Bold", color: "#991b1b" },
+  revokeBtnSub: { fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 1, lineHeight: 14 },
   infoCard: { borderRadius: 12, borderWidth: 1, padding: 12, marginBottom: 12 },
   infoRow: { flexDirection: "row", alignItems: "center", gap: 8, paddingVertical: 6 },
   infoLabel: { fontSize: 12, fontFamily: "Inter_400Regular", width: 72 },
