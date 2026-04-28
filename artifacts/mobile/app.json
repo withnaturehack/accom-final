@@ -1,8 +1,7 @@
 {
   "expo": {
     "name": "CampusOps",
-    "slug": "iitm",
-    "owner": "helloboss152407",
+    "slug": "campusops",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/paradox-logo.png",
@@ -56,16 +55,10 @@
       "router": {
         "origin": "https://localhost",
         "headOrigin": "https://localhost"
-      },
-      "eas": {
-        "projectId": "f64c2867-2564-4a71-b261-a164cd54acf3"
       }
     },
     "runtimeVersion": {
       "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/f64c2867-2564-4a71-b261-a164cd54acf3"
     }
   }
 }
