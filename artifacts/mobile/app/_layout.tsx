@@ -15,6 +15,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { useHeartbeat } from "@/hooks/useHeartbeat";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,6 +35,8 @@ const queryClient = new QueryClient({
 function AuthGuard() {
   const { user, isLoading } = useAuth();
   const segments = useSegments();
+
+  useHeartbeat();
 
   useEffect(() => {
     if (isLoading) return;

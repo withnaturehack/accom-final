@@ -11,15 +11,8 @@ import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import * as FileSystem from "expo-file-system/legacy";
 import * as Sharing from "expo-sharing";
-import Constants from "expo-constants";
 import Colors from "@/constants/colors";
-import { useApiRequest, useAuth } from "@/context/AuthContext";
-
-const PROD_API = "https://zip-12--vpahaddevbhoomi.replit.app/api";
-const API_BASE: string =
-  process.env.EXPO_PUBLIC_API_URL ||
-  (Constants.expoConfig?.extra?.apiUrl as string) ||
-  PROD_API;
+import { useApiRequest, useAuth, API_BASE } from "@/context/AuthContext";
 const LIVE_REFRESH_MS = 5000;
 
 const LOG_TYPES: Record<string, { icon: string; color: string; label: string }> = {
