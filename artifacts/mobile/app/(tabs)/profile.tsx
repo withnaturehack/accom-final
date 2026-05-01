@@ -134,7 +134,7 @@ export default function ProfileScreen() {
 
   const staffTools = [
     { icon: "users", label: "Students", path: "/(tabs)/hostel" },
-    { icon: "check-square", label: "Attendance & Inventory", path: "/(tabs)/lostandfound" },
+    { icon: "check-square", label: "Attendance & Inventory", path: "/(tabs)/attendance" },
     { icon: "activity", label: "Staff Status", path: "/admin/staff-status" },
     { icon: "package", label: "Inventory Table", path: "/admin/inventory-table" },
     { icon: "search", label: "Global Search", path: "/admin/search" },

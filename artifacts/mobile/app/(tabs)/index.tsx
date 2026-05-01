@@ -474,7 +474,7 @@ export default function HomeScreen() {
               iconColor="#22c55e"
               title="Today's Attendance"
               sub={new Date().toDateString()}
-              onViewAll={() => go("/(tabs)/lostandfound")}
+              onViewAll={() => go("/(tabs)/attendance")}
             >
               {attStats ? (
                 <View style={styles.statsRow}>
@@ -484,7 +484,7 @@ export default function HomeScreen() {
                 </View>
               ) : <CardSkeleton />}
               <Pressable
-                onPress={() => { Haptics.selectionAsync(); go("/(tabs)/lostandfound"); }}
+                onPress={() => { Haptics.selectionAsync(); go("/(tabs)/attendance"); }}
                 style={[styles.actionBtn, { backgroundColor: "#22c55e" }]}
               >
                 <Feather name="check-square" size={15} color="#fff" />
@@ -569,7 +569,7 @@ export default function HomeScreen() {
             </Text>
             <View style={styles.quickGrid}>
               <QuickCard label="Search" icon="search" color={theme.tint} onPress={() => go("/admin/search")} />
-              <QuickCard label="Attendance" icon="check-square" color="#22c55e" onPress={() => go("/(tabs)/lostandfound")} />
+              <QuickCard label="Attendance" icon="check-square" color="#22c55e" onPress={() => go("/(tabs)/attendance")} />
               <QuickCard label="Inventory" icon="package" color="#f59e0b" onPress={() => go("/admin/inventory-table" as any)} />
               <QuickCard label="Mess Cards" icon="credit-card" color="#f59e0b" onPress={() => { Haptics.selectionAsync(); router.push('/(tabs)/mess-card' as any); }} />
             </View>
@@ -622,7 +622,7 @@ export default function HomeScreen() {
                 iconColor="#22c55e"
                 title="Room Attendance"
                 sub={`Today · ${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short" })}`}
-                onViewAll={() => go("/(tabs)/lostandfound")}
+                onViewAll={() => go("/(tabs)/attendance")}
               >
                 <View style={styles.statsRow}>
                   <StatBox label="Total" value={attStats.total} color={theme.text} theme={theme} />
@@ -691,7 +691,7 @@ export default function HomeScreen() {
             </Text>
             <View style={styles.quickGrid}>
               <QuickCard label="Students" icon="users" color={theme.tint} onPress={() => go("/(tabs)/hostel")} />
-              <QuickCard label="Attendance" icon="check-square" color="#22c55e" onPress={() => go("/(tabs)/lostandfound")} />
+              <QuickCard label="Attendance" icon="check-square" color="#22c55e" onPress={() => go("/(tabs)/attendance")} />
               <QuickCard label="Mess Cards" icon="credit-card" color="#f59e0b" onPress={() => { Haptics.selectionAsync(); router.push('/(tabs)/mess-card' as any); }} />
               <QuickCard label="Inventory" icon="package" color="#06b6d4" onPress={() => go("/admin/inventory-table" as any)} />
               <QuickCard label="Search" icon="search" color="#3b82f6" onPress={() => go("/admin/search")} />

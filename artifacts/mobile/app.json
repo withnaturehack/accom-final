@@ -4,13 +4,13 @@
     "slug": "campusops",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/paradox-logo.png",
+    "icon": "./assets/images/icon.png",
     "scheme": "mobile",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/paradox-logo.png",
+      "image": "./assets/images/icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#7C3AED"
     },
     "ios": {
       "supportsTablet": false,
@@ -19,8 +19,8 @@
     "android": {
       "package": "in.iitm.campusops",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/paradox-logo.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#7C3AED"
       },
       "allowBackup": false
     },

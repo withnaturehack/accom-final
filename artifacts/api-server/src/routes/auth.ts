@@ -209,4 +209,27 @@ router.get("/me", requireAuth, async (req: AuthRequest, res) => {
   }
 });
 
+// POST /api/auth/reset-all-passwords-to-prefix — superadmin resets ALL users' passwords to email prefix
+router.post("/reset-all-passwords-to-prefix", requireAuth, async (req: AuthRequest, res) => {
+  try {
+    const [caller] = await db.select({ role: usersTable.role }).from(usersTable).where(eq(usersTable.id, req.userId!));
+    if (!caller || caller.role !== "superadmin") {
+      return res.status(403).json({ error: "Forbidden", message: "Super Admin only" });
+    }
+    const allUsers = await db.select({ id: usersTable.id, email: usersTable.email }).from(usersTable);
+    let updated = 0;
+    for (const user of allUsers) {
+      const prefix = (user.email || "").split("@")[0]?.trim();
+      if (!prefix) continue;
+      const hash = await hashPassword(prefix);
+      await db.update(usersTable).set({ passwordHash: hash }).where(eq(usersTable.id, user.id));
+      updated++;
+    }
+    return res.json({ success: true, updated, message: `Reset ${updated} passwords to email prefix` });
+  } catch (err) {
+    console.error("RESET_ALL_PASSWORDS ERROR:", err);
+    return res.status(500).json({ error: "Internal Server Error", message: "Failed to reset passwords" });
+  }
+});
+
 export default router;

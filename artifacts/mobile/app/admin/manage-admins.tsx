@@ -51,6 +51,7 @@ export default function ManageAdminsScreen() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
   const [showResetPwModal, setShowResetPwModal] = useState(false);
+  const [bulkResetting, setBulkResetting] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState<any>(null);
   const [resetPwTarget, setResetPwTarget] = useState<any>(null);
   const [newPassword, setNewPassword] = useState("");
@@ -151,6 +152,29 @@ export default function ManageAdminsScreen() {
     onError: (e: any) => Alert.alert("Reset Failed", e.message),
   });
 
+  const resetAllPasswordsMutation = async () => {
+    const confirmed = Platform.OS === "web"
+      ? window.confirm("Reset ALL user passwords to their email prefix?\n\nExample: 24f2004962@iitm.ds.ac.in → password: 24f2004962\n\nThis affects every student AND staff account.")
+      : await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            "Reset All Passwords?",
+            "This resets EVERY account's password to their email prefix.\n\nExample: 24f2004962@iitm.ds.ac.in → 24f2004962\n\nThis affects all students and staff.",
+            [{ text: "Cancel", style: "cancel", onPress: () => resolve(false) },
+             { text: "Reset All", style: "destructive", onPress: () => resolve(true) }],
+          );
+        });
+    if (!confirmed) return;
+    setBulkResetting(true);
+    try {
+      const result = await request("/auth/reset-all-passwords-to-prefix", { method: "POST" });
+      Alert.alert("Done", `${result?.message || "Passwords reset to email prefix"}`);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (e: any) {
+      Alert.alert("Error", e.message || "Failed to reset passwords");
+    }
+    setBulkResetting(false);
+  };
+
   const deleteMutation = useMutation({
     mutationFn: (id: string) => request(`/admin/admin-users/${id}`, { method: "DELETE" }),
     onMutate: async (id) => {
@@ -224,6 +248,16 @@ export default function ManageAdminsScreen() {
           Manage Admins {staff ? `(${(staff as any[]).length})` : ""}
         </Text>
         <View style={{ flexDirection: "row", gap: 8 }}>
+          <Pressable
+            onPress={resetAllPasswordsMutation}
+            disabled={bulkResetting}
+            style={[styles.addBtn, { backgroundColor: "#f59e0b", opacity: bulkResetting ? 0.6 : 1 }]}
+            hitSlop={4}
+          >
+            {bulkResetting
+              ? <ActivityIndicator size="small" color="#fff" />
+              : <Feather name="key" size={16} color="#fff" />}
+          </Pressable>
           <Pressable onPress={() => { setCsvText(""); setImportResult(null); setShowImportModal(true); }} style={[styles.addBtn, { backgroundColor: "#0EA5E9" }]}>
             <Feather name="upload" size={18} color="#fff" />
           </Pressable>

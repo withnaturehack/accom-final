@@ -12,7 +12,7 @@ import * as Haptics from "expo-haptics";
 import Colors from "@/constants/colors";
 import { useApiRequest, useAuth } from "@/context/AuthContext";
 
-const LIVE_MS = 8000;
+const LIVE_MS = 5000;
 
 const ROLE_COLORS: Record<string, string> = {
   volunteer:   "#22c55e",
@@ -441,7 +441,7 @@ export default function StaffStatusScreen() {
           <Text style={[S.title, { color: theme.text }]}>Staff Status</Text>
           <View style={S.liveRow}>
             <View style={S.liveDot} />
-            <Text style={[S.liveTxt, { color: theme.textSecondary }]}>Live · updates every 8s</Text>
+            <Text style={[S.liveTxt, { color: theme.textSecondary }]}>Live · updates every 5s</Text>
           </View>
         </View>
         <Pressable onPress={onRefresh} style={S.refreshBtn} hitSlop={8}>

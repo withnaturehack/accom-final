@@ -4,19 +4,12 @@ import {
   Platform, useColorScheme, ActivityIndicator, Alert,
   TextInput, Linking,
 } from "react-native";
-import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
-import Constants from "expo-constants";
 import Colors from "@/constants/colors";
-import { useAuth } from "@/context/AuthContext";
-
-const PROD_API = "https://zip-12--vpahaddevbhoomi.replit.app/api";
-const API_BASE: string =
-  process.env.EXPO_PUBLIC_API_URL ||
-  (Constants.expoConfig?.extra?.apiUrl as string) ||
-  PROD_API;
+import { useAuth, API_BASE } from "@/context/AuthContext";
 
 type ImportType = "students" | "mess" | "hostel-assignment";
 
@@ -68,9 +61,7 @@ export default function CsvImportScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const theme = isDark ? Colors.dark : Colors.light;
-  const insets = useSafeAreaInsets();
   const isWeb = Platform.OS === "web";
-  const topPad = Platform.OS === "web" ? 24 : Math.max(insets.top + 20, 100);
   const { token } = useAuth();
   const [selectedType, setSelectedType] = useState<ImportType | null>(null);
   const [csvText, setCsvText] = useState("");
