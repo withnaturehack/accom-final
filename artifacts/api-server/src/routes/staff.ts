@@ -39,6 +39,8 @@ function staffOverlapsScope(
 ) {
   if (!scopedIds) return true;
   if (scopedIds.length === 0) return false;
+  // Admins and superadmins are campus-wide — always visible to all scoped callers
+  if (staff.role === "admin" || staff.role === "superadmin") return true;
   const staffAssigned = parseAssignedHostelIds(staff.assignedHostelIds);
   const staffScope = new Set([...(staffAssigned || []), staff.hostelId || ""].filter(Boolean));
   for (const id of scopedIds) {

@@ -113,10 +113,8 @@ export default function ReportsScreen() {
   const statCards = [
     { label: "Total Students", value: summary?.totalStudents, icon: "users", color: theme.tint },
     { label: "Total Hostels", value: summary?.totalHostels, icon: "home", color: "#22c55e" },
-    { label: "Lost Items", value: summary?.totalLostItems, icon: "search", color: "#f59e0b" },
-    { label: "Active Staff", value: activeStaff.filter(s => s.isOnline).length, icon: "activity", color: "#22c55e" },
-    { label: "Items Found", value: summary?.foundItems, icon: "check-circle", color: "#22c55e" },
-    { label: "Announcements", value: summary?.totalAnnouncements, icon: "volume-2", color: "#8b5cf6" },
+    { label: "Active Staff", value: activeStaff.filter((s: any) => s.isOnline).length, icon: "activity", color: "#8b5cf6" },
+    { label: "Announcements", value: summary?.totalAnnouncements, icon: "volume-2", color: "#f59e0b" },
   ];
 
   return (

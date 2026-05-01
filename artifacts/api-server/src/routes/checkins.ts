@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { db, checkinsTable, usersTable, studentInventoryTable, attendanceTable } from "@workspace/db";
+import { db, checkinsTable, usersTable, studentInventoryTable, attendanceTable, timeLogsTable } from "@workspace/db";
 import { eq, and, desc, inArray } from "drizzle-orm";
 import { requireVolunteer, generateId, AuthRequest } from "../lib/auth.js";
 
@@ -253,6 +253,15 @@ router.delete("/:studentId/today", requireVolunteer, async (req: AuthRequest, re
   await db.update(usersTable)
     .set({ attendanceStatus: "not_entered" })
     .where(eq(usersTable.id, studentId));
+
+  // Log the revoke action so it appears in activity logs
+  await db.insert(timeLogsTable).values({
+    id: generateId(),
+    userId: req.userId!,
+    type: "checkin",
+    note: `Revoked check-in for student ${studentId}`,
+    hostelId: student.hostelId || null,
+  });
 
   res.json({ success: true, message: "Check-in and inventory cleared for today" });
 });

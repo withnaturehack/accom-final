@@ -310,9 +310,9 @@ export default function HomeScreen() {
         .map(enrich);
     }
     if (isVolunteer && effectiveUser?.hostelId) {
-      // Show other volunteers currently assigned to my hostel
+      // Show all staff who work at the same hostel (volunteers, coordinators, admins)
+      // Backend already scopes by hostel; we just exclude self here
       return (allStaff as any[])
-        .filter((s: any) => s.role === "volunteer" && String(s.hostelId || "") === String(effectiveUser.hostelId))
         .filter(excludeSelf)
         .map(enrich);
     }

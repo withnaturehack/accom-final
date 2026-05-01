@@ -318,18 +318,35 @@ function AttendanceModal({
                 </View>
               </View>
 
-              {/* STEP 1: Check In */}
+              {/* STEP 1: Check In / Revoke */}
               <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>STEP 1 — CHECK IN</Text>
               <View style={styles.stepRow}>
-                <StepButton
-                  label={isCheckedIn ? "Checked In" : isCheckedOut ? "Checked Out" : "Check In"}
-                  icon="log-in"
-                  done={isCheckedIn || isCheckedOut}
-                  disabled={isCheckedIn || isCheckedOut}
-                  onPress={checkIn}
-                  loading={actionLoading === "checkin"}
-                  theme={theme}
-                />
+                {isCheckedIn && !isCheckedOut ? (
+                  <Pressable
+                    onPress={revokeCheckin}
+                    disabled={!!actionLoading}
+                    style={[styles.stepBtn, { backgroundColor: "#22c55e", borderColor: "#16a34a", opacity: actionLoading ? 0.6 : 1, flex: 1 }]}
+                  >
+                    {actionLoading === "revoke-checkin" ? (
+                      <ActivityIndicator color="#fff" size="small" />
+                    ) : (
+                      <>
+                        <Feather name="check-circle" size={14} color="#fff" />
+                        <Text style={[styles.stepBtnText, { color: "#fff" }]}>✓ Checked In · Tap to Revoke</Text>
+                      </>
+                    )}
+                  </Pressable>
+                ) : (
+                  <StepButton
+                    label={isCheckedOut ? "Checked Out" : "Check In"}
+                    icon="log-in"
+                    done={isCheckedOut}
+                    disabled={isCheckedOut}
+                    onPress={checkIn}
+                    loading={actionLoading === "checkin"}
+                    theme={theme}
+                  />
+                )}
               </View>
 
               {/* STEP 2–4: Give Inventory */}
@@ -436,40 +453,15 @@ function AttendanceModal({
                         <Feather name="rotate-ccw" size={14} color="#ef4444" />
                       </View>
                       <View style={{ flex: 1 }}>
-                        <Text style={[styles.revokeCardTitle, { color: theme.text }]}>Revoke Actions</Text>
+                        <Text style={[styles.revokeCardTitle, { color: theme.text }]}>Inventory Revoke</Text>
                         <Text style={[styles.revokeCardHint, { color: theme.textSecondary }]}>
-                          Undo a check-in/check-out or unlock this student&apos;s inventory.
+                          Undo or unlock inventory items for this student.
                         </Text>
                       </View>
                       {actionLoading?.startsWith("revoke") && <ActivityIndicator size="small" color="#ef4444" />}
                     </View>
 
                     <View style={styles.revokeBtnGroup}>
-                      {hasAttendanceSession && (
-                        <Pressable
-                          disabled={!!actionLoading}
-                          onPress={revokeCheckin}
-                          style={({ pressed }) => [styles.revokeBtnRow, {
-                            backgroundColor: pressed && !actionLoading ? "#fee2e2" : "#fef2f2",
-                            borderColor: "#ef444433",
-                            opacity: actionLoading ? 0.6 : 1,
-                          }]}
-                        >
-                          <View style={[styles.revokeBtnIcon, { backgroundColor: "#ef444418" }]}>
-                            <Feather name="log-out" size={15} color="#ef4444" />
-                          </View>
-                          <View style={{ flex: 1 }}>
-                            <Text style={styles.revokeBtnTitle}>Revoke Check-in / Check-out</Text>
-                            <Text style={[styles.revokeBtnSub, { color: theme.textSecondary }]}>
-                              Clears today&apos;s entry & resets inventory
-                            </Text>
-                          </View>
-                          {actionLoading === "revoke-checkin"
-                            ? <ActivityIndicator size="small" color="#ef4444" />
-                            : <Feather name="chevron-right" size={16} color="#ef4444" />}
-                        </Pressable>
-                      )}
-
                       {(["mattress", "bedsheet", "pillow"] as const).map((item) => {
                         const submitKey = `${item}Submitted` as "mattressSubmitted" | "bedsheetSubmitted" | "pillowSubmitted";
                         const taken = !!inv[item] || !!inv[submitKey];

@@ -3,11 +3,10 @@ import {
   db,
   usersTable,
   hostelsTable,
-  lostItemsTable,
   announcementsTable,
   timeLogsTable,
 } from "@workspace/db";
-import { eq, count, or, sql, inArray, and } from "drizzle-orm";
+import { eq, count, sql, inArray, and } from "drizzle-orm";
 import {
   requireSuperAdmin,
   requireAdmin,
@@ -53,8 +52,6 @@ router.get("/summary", requireAdmin, async (req: AuthRequest, res) => {
     res.json({
       totalStudents: 0,
       totalHostels: 0,
-      totalLostItems: 0,
-      foundItems: 0,
       totalAnnouncements: 0,
       recentActivity: [],
     });
@@ -69,14 +66,10 @@ router.get("/summary", requireAdmin, async (req: AuthRequest, res) => {
     ? [{ count: scopedHostelIds.length } as { count: number }]
     : await db.select({ count: count() }).from(hostelsTable);
   const [announcementsCount] = await db.select({ count: count() }).from(announcementsTable);
-  const lostItems = await db.select({ status: lostItemsTable.status }).from(lostItemsTable);
-  const foundItems = lostItems.filter(i => i.status === "found" || i.status === "claimed").length;
 
   res.json({
     totalStudents: Number(studentsCount.count),
     totalHostels: Number(hostelsCount.count),
-    totalLostItems: lostItems.length,
-    foundItems,
     totalAnnouncements: Number(announcementsCount.count),
     recentActivity: [],
   });
