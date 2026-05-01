@@ -8,7 +8,7 @@ import { Platform } from "react-native";
 // bulletproof final fallback so that Expo Go / APK builds never hit localhost.
 const PROD_API = "https://zip-12--vpahaddevbhoomi.replit.app/api";
 
-const API_BASE: string =
+export const API_BASE: string =
   (process.env.EXPO_PUBLIC_API_URL) ||
   (Constants.expoConfig?.extra?.apiUrl as string | undefined) ||
   PROD_API;

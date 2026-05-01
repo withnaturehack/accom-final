@@ -231,11 +231,7 @@ function AttendanceModal({
     }));
   };
 
-  const hasAnyInv =
-    inv.mattress || inv.bedsheet || inv.pillow ||
-    inv.mattressSubmitted || inv.bedsheetSubmitted || inv.pillowSubmitted ||
-    inv.inventoryLocked;
-  const showRevokeCard = hasAttendanceSession || hasAnyInv;
+  const showRevokeCard = hasAttendanceSession;
 
   function formatTime(ts: string | null): string {
     if (!ts) return "—";

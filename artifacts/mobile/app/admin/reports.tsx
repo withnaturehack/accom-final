@@ -1,35 +1,29 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import {
   View, Text, ScrollView, StyleSheet, Pressable,
   RefreshControl, Platform, useColorScheme, Alert, Share,
+  ActivityIndicator,
 } from "react-native";
-import { useSafeAreaInsets, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useQuery } from "@tanstack/react-query";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as Haptics from "expo-haptics";
 import * as FileSystem from "expo-file-system/legacy";
-import Constants from "expo-constants";
+import * as Sharing from "expo-sharing";
 import Colors from "@/constants/colors";
-import { useApiRequest, useAuth } from "@/context/AuthContext";
+import { useApiRequest, useAuth, API_BASE } from "@/context/AuthContext";
 import { AnimatedCard } from "@/components/ui/AnimatedCard";
 import { CardSkeleton } from "@/components/ui/LoadingSkeleton";
-
-const PROD_API = "https://zip-12--vpahaddevbhoomi.replit.app/api";
-const API_BASE: string =
-  process.env.EXPO_PUBLIC_API_URL ||
-  (Constants.expoConfig?.extra?.apiUrl as string) ||
-  PROD_API;
 
 export default function ReportsScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
   const theme = isDark ? Colors.dark : Colors.light;
-  const insets = useSafeAreaInsets();
   const request = useApiRequest();
   const { token, user } = useAuth();
   const isWeb = Platform.OS === "web";
-  const topPad = Platform.OS === "web" ? 24 : Math.max(insets.top + 20, 100);
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   const { data: summary, isLoading, refetch } = useQuery({
     queryKey: ["reports-summary"],
@@ -59,37 +53,44 @@ export default function ReportsScreen() {
   const today = new Date().toISOString().split("T")[0];
 
   const download = async (path: string, filename: string) => {
+    if (downloading) return;
+    setDownloading(filename);
     Haptics.selectionAsync();
     const url = `${API_BASE}${path}`;
-    if (Platform.OS === "web") {
-      fetch(url, { headers: { Authorization: `Bearer ${token}` } })
-        .then(r => r.blob())
-        .then(blob => {
-          const u = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = u; a.download = filename; a.click();
-          URL.revokeObjectURL(u);
-        }).catch(() => Alert.alert("Error", "Download failed"));
-    } else {
-      try {
+    try {
+      if (Platform.OS === "web") {
+        const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+        if (!r.ok) throw new Error(`Server returned ${r.status}`);
+        const blob = await r.blob();
+        const u = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = u; a.download = filename; a.click();
+        URL.revokeObjectURL(u);
+      } else {
         const dir = FileSystem.documentDirectory || FileSystem.cacheDirectory;
         if (!dir) throw new Error("No writable directory available");
-
-        const safeName = filename.replaceAll(/[^a-zA-Z0-9._-]/g, "_");
+        const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
         const fileUri = `${dir}${Date.now()}-${safeName}`;
         const result = await FileSystem.downloadAsync(url, fileUri, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        await Share.share({
-          url: result.uri,
-          title: filename,
-          message: `Report downloaded: ${filename}`,
-        });
-      } catch (e: any) {
-        Alert.alert("Download failed", e?.message || "Could not download report on this device");
+        const canShare = await Sharing.isAvailableAsync();
+        if (canShare) {
+          await Sharing.shareAsync(result.uri, {
+            mimeType: filename.endsWith(".pdf") ? "application/pdf" : "text/csv",
+            dialogTitle: `Share ${filename}`,
+            UTI: filename.endsWith(".pdf") ? "com.adobe.pdf" : "public.comma-separated-values-text",
+          });
+        } else {
+          await Share.share({ url: result.uri, title: filename, message: `Report: ${filename}` });
+        }
+      }
+    } catch (e: any) {
+      if (e?.message !== "The user did not share") {
+        Alert.alert("Download failed", e?.message || "Could not download. Check your connection.");
       }
     }
+    setDownloading(null);
   };
 
   const csvExports = [
@@ -177,41 +178,51 @@ export default function ReportsScreen() {
         <Text style={[styles.sectionTitle, { color: theme.text }]}>
           <Feather name="download" size={16} /> CSV Downloads
         </Text>
-        {csvExports.map(({ label, sub, icon, path, filename, color }) => (
-          <Pressable key={label} onPress={() => download(path, filename)}
-            style={[styles.exportRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <View style={[styles.exportIcon, { backgroundColor: color + "20" }]}>
-              <Feather name={icon as any} size={20} color={color} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.exportLabel, { color: theme.text }]}>{label}</Text>
-              <Text style={[styles.exportSub, { color: theme.textSecondary }]}>{sub}</Text>
-            </View>
-            <View style={[styles.csvBadge, { backgroundColor: color + "20" }]}>
-              <Text style={[styles.csvBadgeText, { color }]}>CSV</Text>
-            </View>
-          </Pressable>
-        ))}
+        {csvExports.map(({ label, sub, icon, path, filename, color }) => {
+          const isLoading = downloading === filename;
+          return (
+            <Pressable key={label} onPress={() => download(path, filename)} disabled={!!downloading}
+              style={({ pressed }) => [styles.exportRow, { backgroundColor: theme.surface, borderColor: theme.border, opacity: isLoading ? 0.8 : pressed ? 0.85 : 1 }]}>
+              <View style={[styles.exportIcon, { backgroundColor: color + "20" }]}>
+                <Feather name={icon as any} size={20} color={color} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.exportLabel, { color: theme.text }]}>{label}</Text>
+                <Text style={[styles.exportSub, { color: theme.textSecondary }]}>{isLoading ? "Downloading…" : sub}</Text>
+              </View>
+              {isLoading
+                ? <ActivityIndicator size="small" color={color} />
+                : <View style={[styles.csvBadge, { backgroundColor: color + "20" }]}>
+                    <Text style={[styles.csvBadgeText, { color }]}>CSV</Text>
+                  </View>}
+            </Pressable>
+          );
+        })}
 
         {/* PDF Downloads */}
         <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 8 }]}>
           <Feather name="file-text" size={16} color="#ef4444" /> PDF Downloads
         </Text>
-        {pdfExports.map(({ label, sub, icon, path, filename, color }) => (
-          <Pressable key={label} onPress={() => download(path, filename)}
-            style={[styles.exportRow, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-            <View style={[styles.exportIcon, { backgroundColor: color + "20" }]}>
-              <Feather name={icon as any} size={20} color={color} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.exportLabel, { color: theme.text }]}>{label}</Text>
-              <Text style={[styles.exportSub, { color: theme.textSecondary }]}>{sub}</Text>
-            </View>
-            <View style={[styles.csvBadge, { backgroundColor: "#ef444420" }]}>
-              <Text style={[styles.csvBadgeText, { color: "#ef4444" }]}>PDF</Text>
-            </View>
-          </Pressable>
-        ))}
+        {pdfExports.map(({ label, sub, icon, path, filename, color }) => {
+          const isLoading = downloading === filename;
+          return (
+            <Pressable key={label} onPress={() => download(path, filename)} disabled={!!downloading}
+              style={({ pressed }) => [styles.exportRow, { backgroundColor: theme.surface, borderColor: theme.border, opacity: isLoading ? 0.8 : pressed ? 0.85 : 1 }]}>
+              <View style={[styles.exportIcon, { backgroundColor: color + "20" }]}>
+                <Feather name={icon as any} size={20} color={color} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.exportLabel, { color: theme.text }]}>{label}</Text>
+                <Text style={[styles.exportSub, { color: theme.textSecondary }]}>{isLoading ? "Downloading…" : sub}</Text>
+              </View>
+              {isLoading
+                ? <ActivityIndicator size="small" color="#ef4444" />
+                : <View style={[styles.csvBadge, { backgroundColor: "#ef444420" }]}>
+                    <Text style={[styles.csvBadgeText, { color: "#ef4444" }]}>PDF</Text>
+                  </View>}
+            </Pressable>
+          );
+        })}
 
         {/* Quick Navigation */}
         <Text style={[styles.sectionTitle, { color: theme.text, marginTop: 8 }]}>Quick Navigation</Text>
