@@ -55,9 +55,9 @@ packages = ["eas-cli"]
 
 [userenv.shared]
 JWT_SECRET = "f6abfd33b3d2b80c0f5f95a966c729a4a4475f307bd087b3a77911a4c4924327"
-SUPABASE_DATABASE_URL = "postgresql://postgres.fqiqyeollnnfqyqkecsd:Kartik%4012415@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?uselibpqcompat=true&sslmode=require"
 EXPO_PUBLIC_API_URL = "https://zip-12--vpahaddevbhoomi.replit.app/api"
 EXPO_PUBLIC_WEB_ORIGIN = "https://zip-12--vpahaddevbhoomi.replit.app"
 EXPO_PUBLIC_DOMAIN = "zip-12--vpahaddevbhoomi.replit.app"
 CI = "1"
 EXPO_NO_DOTENV = "1"
+AUTO_SEED = "true"

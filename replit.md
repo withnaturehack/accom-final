@@ -154,7 +154,7 @@ workspace/
 ## Replit Migration Notes
 
 - **expo-router@6 / @expo/router-server@55 shim**: `expo@55` pulls in `@expo/router-server@55.0.11` which requires `expo-router/internal/routing` and `expo-router/internal/testing` — both missing from `expo-router@6.0.x`. A `postinstall` script at `scripts/patch-expo-router.js` creates these shims automatically after `pnpm install`.
-- **Database**: Uses Supabase (`SUPABASE_DATABASE_URL`), `DATABASE_URL` secret also set as fallback.
+- **Database**: Now uses Replit's built-in PostgreSQL via `DATABASE_URL` secret. Migrated from Supabase.
 - **CI mode**: Mobile runs with `CI=1` so Metro disables watch mode (required for Replit).
 - **React Native DevTools system libs**: The `@react-native/debugger-shell` binary (Chromium-based) requires these Nix system packages to start Metro during production builds: `glib`, `nspr`, `nss`, `atk`, `cups`, `expat`, `libdrm`, `pango`, `cairo`, `dbus`, `alsa-lib`, `xorg.libX11`, `xorg.libXcomposite`, `xorg.libXdamage`, `xorg.libXext`, `xorg.libXfixes`, `xorg.libXrandr`, `xorg.libxcb`, `libxkbcommon`, `mesa`. Missing any of these causes `Metro timeout` during the mobile build.
 
@@ -165,20 +165,11 @@ workspace/
 
 ## Environment Variables
 
-- `SUPABASE_DATABASE_URL` — Supabase PostgreSQL connection (primary, transaction pooler port 6543)
-- `DATABASE_URL` — Replit PostgreSQL fallback
+- `DATABASE_URL` — Replit built-in PostgreSQL (auto-provisioned, managed by Replit)
 - `JWT_SECRET` — JWT signing secret
 - `PORT` — API server port (set to 8080)
-- `EXPO_PUBLIC_API_URL` — API base URL (set in `artifacts/mobile/.env`, currently points to deployed URL)
-
-## Production Database (Supabase)
-
-Connected to Supabase at `aws-1-ap-south-1.pooler.supabase.com:6543` with real IIT Madras data:
-- **3,060 real students** across 13 hostels
-- **13 hostels**: Bhadra, Brahmaputra, Cauvery, Ganga, Godavari, Jamuna, Krishna, Mandakini, Narmada, Saraswathi, Sharavathi, Swarnamukhi, Tapti
-- Hostel IDs are the hostel names (e.g., `hostelId = "Bhadra"`)
-- 26 volunteers + 6 admins + 1 superadmin imported
-- `drizzle.config.ts` checks `SUPABASE_DATABASE_URL` first, then falls back to `DATABASE_URL`
+- `AUTO_SEED` — Set to `"true"` to auto-seed demo accounts on startup
+- `EXPO_PUBLIC_API_URL` — API base URL (currently points to deployed URL)
 
 ## Demo Staff Accounts (password: 123456)
 
