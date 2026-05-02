@@ -151,19 +151,27 @@ function AttendanceModal({
   const isCheckedOut = !!checkin?.checkOutTime;
   const hasAttendanceSession = isCheckedIn || isCheckedOut;
 
+  // Push a state patch to both modal and parent list immediately
+  function applyStateUpdate(next: CheckinState | null) {
+    setState(next);
+    if (!student) return;
+    const nextCheckin = next?.checkin ?? null;
+    onDataChanged(student.id, {
+      attendanceStatus: nextCheckin && !nextCheckin.checkOutTime ? "entered" : nextCheckin?.checkOutTime ? "exited" : "not_entered",
+      checkInTime: nextCheckin?.checkInTime ?? null,
+      checkOutTime: nextCheckin?.checkOutTime ?? null,
+      inventory: next?.inventory ?? undefined,
+    });
+  }
+
+  // Standard action: show spinner, call API, then sync confirmed state from server
   async function doAction(action: string, fn: () => Promise<any>) {
     if (!student) return;
     setActionLoading(action);
     try {
       await fn();
       const next = await loadState({ silent: true });
-      const nextCheckin = next?.checkin ?? null;
-      onDataChanged(student.id, {
-        attendanceStatus: nextCheckin && !nextCheckin.checkOutTime ? "entered" : nextCheckin?.checkOutTime ? "exited" : "not_entered",
-        checkInTime: nextCheckin?.checkInTime ?? null,
-        checkOutTime: nextCheckin?.checkOutTime ?? null,
-        inventory: next?.inventory ?? undefined,
-      });
+      applyStateUpdate(next ?? null);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: any) {
       Alert.alert("Error", e.message || "Action failed");
@@ -173,28 +181,62 @@ function AttendanceModal({
     }
   }
 
+  // Optimistic action: apply patch immediately so UI responds with zero lag,
+  // then confirm with server in background; rollback only on error
+  async function doOptimistic(action: string, optimistic: CheckinState, fn: () => Promise<any>) {
+    if (!student) return;
+    applyStateUpdate(optimistic);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setActionLoading(action);
+    try {
+      await fn();
+      const confirmed = await loadState({ silent: true });
+      applyStateUpdate(confirmed ?? null);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (e: any) {
+      const rolled = await loadState({ silent: true });
+      applyStateUpdate(rolled ?? null);
+      Alert.alert("Error", e.message || "Action failed");
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+    } finally {
+      setActionLoading(null);
+    }
+  }
+
   const checkIn = () => doAction("checkin", () => request(`/checkins/${student.id}`, { method: "POST", body: JSON.stringify({}) }));
 
-  const giveItem = (item: "mattress" | "bedsheet" | "pillow", val: boolean) =>
-    doAction(`give-${item}`, () => request(`/inventory-simple/${student.id}`, {
+  const giveItem = (item: "mattress" | "bedsheet" | "pillow", val: boolean) => {
+    const optimistic: CheckinState = { checkin, inventory: { ...inv, [item]: val } };
+    doOptimistic(`give-${item}`, optimistic, () => request(`/inventory-simple/${student.id}`, {
       method: "PATCH",
       body: JSON.stringify({ [item]: val }),
     }));
+  };
 
-  const submitItem = (item: "mattress" | "bedsheet" | "pillow", val: boolean) =>
-    doAction(`submit-${item}`, () => request(`/inventory-simple/${student.id}/submit`, {
+  const submitItem = (item: "mattress" | "bedsheet" | "pillow", val: boolean) => {
+    const key = `${item}Submitted` as keyof typeof inv;
+    const optimistic: CheckinState = { checkin, inventory: { ...inv, [key]: val } };
+    doOptimistic(`submit-${item}`, optimistic, () => request(`/inventory-simple/${student.id}/submit`, {
       method: "POST",
       body: JSON.stringify({ [item]: val }),
     }));
+  };
 
   const checkOut = () => {
     if (!checkin) return;
-    doAction("checkout", () => request(`/checkins/${checkin.id}/checkout`, { method: "PATCH", body: JSON.stringify({}) }));
+    const optimistic: CheckinState = { checkin: { ...checkin, checkOutTime: new Date().toISOString() }, inventory: inv };
+    doOptimistic("checkout", optimistic, () => request(`/checkins/${checkin.id}/checkout`, { method: "PATCH", body: JSON.stringify({}) }));
+  };
+
+  const revokeCheckout = () => {
+    if (!checkin) return;
+    // Optimistic: immediately clear checkOutTime so UI snaps back to checked-in state
+    const optimistic: CheckinState = { checkin: { ...checkin, checkOutTime: null }, inventory: inv };
+    doOptimistic("revoke-checkout", optimistic, () => request(`/checkins/${checkin.id}/revoke-checkout`, { method: "PATCH", body: JSON.stringify({}) }));
   };
 
   const confirmAsync = (title: string, msg: string): Promise<boolean> => {
     if (Platform.OS === "web") {
-      // eslint-disable-next-line no-alert
       return Promise.resolve(typeof window !== "undefined" && window.confirm(`${title}\n\n${msg}`));
     }
     return new Promise((resolve) => {
@@ -213,16 +255,6 @@ function AttendanceModal({
     );
     if (!ok) return;
     doAction("revoke-checkin", () => request(`/checkins/${student.id}/today`, { method: "DELETE" }));
-  };
-
-  const revokeCheckout = async () => {
-    if (!checkin) return;
-    const ok = await confirmAsync(
-      "Revoke Checkout?",
-      "This will undo the checkout and mark the student as still checked in.",
-    );
-    if (!ok) return;
-    doAction("revoke-checkout", () => request(`/checkins/${checkin.id}/revoke-checkout`, { method: "PATCH", body: JSON.stringify({}) }));
   };
 
   const revokeItem = async (item: "mattress" | "bedsheet" | "pillow") => {
