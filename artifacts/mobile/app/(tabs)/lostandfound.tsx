@@ -438,20 +438,17 @@ function AttendanceModal({
               <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>STEP 8 — CHECK OUT</Text>
               <View style={styles.stepRow}>
                 {isCheckedOut ? (
-                  <Pressable
-                    onPress={revokeCheckout}
-                    disabled={!!actionLoading}
-                    style={[styles.stepBtn, { backgroundColor: "#6366f1", borderColor: "#4f46e5", opacity: actionLoading ? 0.6 : 1, flex: 1 }]}
-                  >
-                    {actionLoading === "revoke-checkout" ? (
-                      <ActivityIndicator color="#fff" size="small" />
-                    ) : (
-                      <>
-                        <Feather name="check-circle" size={14} color="#fff" />
-                        <Text style={[styles.stepBtnText, { color: "#fff" }]}>✓ Checked Out · Tap to Revoke</Text>
-                      </>
-                    )}
-                  </Pressable>
+                  <View style={[styles.stepBtn, { backgroundColor: "#22c55e", borderColor: "#16a34a", flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }]}>
+                    <Feather name="check-circle" size={16} color="#fff" />
+                    <View>
+                      <Text style={[styles.stepBtnText, { color: "#fff", fontSize: 14 }]}>✓ Checked Out</Text>
+                      {checkin?.checkOutTime && (
+                        <Text style={{ color: "#d1fae5", fontSize: 11, fontFamily: "Inter_400Regular", textAlign: "center" }}>
+                          at {formatTime(checkin.checkOutTime)}
+                        </Text>
+                      )}
+                    </View>
+                  </View>
                 ) : (
                   <StepButton
                     label="Check Out"
@@ -468,7 +465,7 @@ function AttendanceModal({
                 <Text style={[styles.sectionHint, { color: "#ef4444" }]}>Given but not submitted inventory is marked in red.</Text>
               )}
               {isCheckedIn && noItemsGiven && !isCheckedOut && (
-                <Text style={[styles.sectionHint, { color: "#111827" }]}>No inventory taken, checkout is enabled</Text>
+                <Text style={[styles.sectionHint, { color: theme.textTertiary }]}>No inventory taken — checkout is enabled.</Text>
               )}
 
               {/* ── Revoke Actions (volunteer / admin / super admin) ───── */}
