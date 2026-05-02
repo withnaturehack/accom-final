@@ -362,7 +362,7 @@ function AttendanceModal({
               {/* STEP 2–4: Give Inventory */}
               <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>STEPS 2-4 — GIVE INVENTORY</Text>
               <Text style={[styles.sectionHint, { color: theme.textTertiary }]}>
-                {!isCheckedIn ? "Check in the student first" : isCheckedOut ? "Student has checked out" : "Tap to give each item"}
+                {!checkin ? "Check in the student first" : isCheckedOut ? "Student has checked out" : "Tap to give each item"}
               </Text>
               <View style={styles.stepRow}>
                 {(["mattress", "bedsheet", "pillow"] as const).map(item => (
@@ -394,7 +394,7 @@ function AttendanceModal({
               {/* STEP 5–7: Submit Inventory */}
               <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>STEPS 5-7 — SUBMIT INVENTORY</Text>
               <Text style={[styles.sectionHint, { color: theme.textTertiary }]}>
-                {!isCheckedIn ? "Check in first" : "Submit items that were given and returned"}
+                {!checkin ? "Check in first" : isCheckedOut ? "Student has checked out" : "Submit items that were given and returned"}
               </Text>
               <View style={styles.stepRow}>
                 {(["mattress", "bedsheet", "pillow"] as const).map(item => {
@@ -438,17 +438,30 @@ function AttendanceModal({
               <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>STEP 8 — CHECK OUT</Text>
               <View style={styles.stepRow}>
                 {isCheckedOut ? (
-                  <View style={[styles.stepBtn, { backgroundColor: "#22c55e", borderColor: "#16a34a", flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 }]}>
-                    <Feather name="check-circle" size={16} color="#fff" />
-                    <View>
-                      <Text style={[styles.stepBtnText, { color: "#fff", fontSize: 14 }]}>✓ Checked Out</Text>
-                      {checkin?.checkOutTime && (
-                        <Text style={{ color: "#d1fae5", fontSize: 11, fontFamily: "Inter_400Regular", textAlign: "center" }}>
-                          at {formatTime(checkin.checkOutTime)}
-                        </Text>
-                      )}
-                    </View>
-                  </View>
+                  <Pressable
+                    onPress={revokeCheckout}
+                    disabled={!!actionLoading}
+                    style={({ pressed }) => [
+                      styles.stepBtn,
+                      { backgroundColor: pressed ? "#16a34a" : "#22c55e", borderColor: "#16a34a", flex: 1, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, opacity: actionLoading ? 0.6 : 1 },
+                    ]}
+                  >
+                    {actionLoading === "revoke-checkout" ? (
+                      <ActivityIndicator color="#fff" size="small" />
+                    ) : (
+                      <View style={{ alignItems: "center" }}>
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                          <Feather name="check-circle" size={14} color="#fff" />
+                          <Text style={[styles.stepBtnText, { color: "#fff" }]}>✓ Checked Out · Tap to Revoke</Text>
+                        </View>
+                        {checkin?.checkOutTime && (
+                          <Text style={{ color: "#d1fae5", fontSize: 11, fontFamily: "Inter_400Regular", marginTop: 2 }}>
+                            at {formatTime(checkin.checkOutTime)}
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                  </Pressable>
                 ) : (
                   <StepButton
                     label="Check Out"
