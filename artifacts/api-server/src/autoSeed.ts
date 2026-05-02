@@ -57,8 +57,60 @@ export async function autoSeed() {
       }).onConflictDoNothing();
     }
 
+    // --- Demo Students (seed 60 if none exist) ---
     const [{ count: studentCount }] = await db.select({ count: count() }).from(usersTable).where(eq(usersTable.role, "student"));
     console.log(`[seed] Students in DB: ${studentCount} across ${hostelIds.length} hostels`);
+
+    if (Number(studentCount) === 0 && hostelIds.length > 0) {
+      const MESS_OPTIONS = [
+        "Neelkesh - North - Veg", "Neelkesh - North - Non-Veg",
+        "R Gouras - North - Veg", "R Gouras - North - Non-Veg",
+        "Rassense (CRCL) - South - Veg", "Rassense (CRCL) - South - Non-Veg",
+        "Firstman - North - Veg", "Firstman - North - Non-Veg",
+      ];
+      const AREAS = ["N", "S", "E", "W"];
+      const STATUS_OPT: Array<"entered" | "exited"> = ["entered", "exited"];
+      const DEMO_STUDENTS = [
+        "Aarav Sharma","Aditi Singh","Aditya Kumar","Akash Patel","Ananya Gupta",
+        "Anjali Verma","Arjun Nair","Bhavya Reddy","Chirag Mehta","Deepika Joshi",
+        "Divya Iyer","Gaurav Mishra","Harsha Vardhan","Ishaan Bose","Jaya Krishnan",
+        "Kabir Das","Kavya Pillai","Lakshmi Narayanan","Manish Tiwari","Meera Sahu",
+        "Mohit Yadav","Nandini Roy","Nikhil Agarwal","Nisha Choudhary","Om Prakash",
+        "Pooja Tripathi","Priya Pandey","Rahul Bansal","Rajesh Kulkarni","Rekha Nambiar",
+        "Rohit Chandra","Sakshi Goel","Sanjay Dubey","Shreya Kapoor","Shubham Jain",
+        "Soumya Bhatt","Srikanth Rao","Suresh Malhotra","Tanvi Desai","Uday Menon",
+        "Vaibhav Shah","Vijaya Laxmi","Vikram Sengupta","Vinay Hegde","Yash Awasthi",
+        "Zara Siddiqui","Arnav Bhatia","Diya Chauhan","Harsh Bajaj","Ishita Khanna",
+        "Karan Rathi","Lavanya Subramanian","Mayur Patil","Neel Joshi","Ojas Thakur",
+        "Payal Ahuja","Radhika Venkatesh","Samir Oberoi","Tanya Srivastava","Urvashi More",
+      ];
+      const YEAR_PFX = ["21F","22F","23F","24F","25F"];
+      let created = 0;
+      for (let i = 0; i < DEMO_STUDENTS.length; i++) {
+        const name = DEMO_STUDENTS[i];
+        const hostelId = hostelIds[i % hostelIds.length];
+        const roll = `${YEAR_PFX[i % 5]}${String(1000000 + i * 97).slice(0,7)}`;
+        const room = String(100 + Math.floor(i / 4) * 4 + (i % 4) + 1);
+        const mess = MESS_OPTIONS[i % MESS_OPTIONS.length];
+        const area = AREAS[i % AREAS.length];
+        const attendance = STATUS_OPT[i % 3 === 0 ? 0 : 1];
+        const email = `student${i + 1}@iitm.ac.in`;
+        await db.insert(usersTable).values({
+          id: generateId(), name, email,
+          passwordHash: await hashPassword("123456"),
+          role: "student",
+          rollNumber: roll,
+          hostelId,
+          roomNumber: room,
+          assignedMess: mess,
+          area,
+          attendanceStatus: attendance,
+          isActive: true,
+        }).onConflictDoNothing();
+        created++;
+      }
+      console.log(`[seed] Created ${created} demo students`);
+    }
 
     // --- Emergency Contacts ---
     const [{ count: contactCount }] = await db.select({ count: count() }).from(emergencyContactsTable);
