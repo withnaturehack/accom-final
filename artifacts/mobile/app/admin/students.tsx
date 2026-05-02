@@ -111,7 +111,6 @@ function StudentProfileModal({ visible, studentId, onClose, theme, request }: {
                       <Badge label={`Area: ${s.area || "—"}`} variant="gray" />
                     </View>
                     <Text style={[styles.room, { color: theme.textSecondary, marginTop: 8 }]}>Phone: {s.mobileNumber || s.contactNumber || s.phone || "—"}</Text>
-                    <Text style={[styles.room, { color: theme.textSecondary }]}>Emergency: {s.emergencyContact || "—"}</Text>
                   </AnimatedCard>
 
                   <AnimatedCard style={styles.card}>

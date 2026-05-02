@@ -118,7 +118,6 @@ const StudentDetailModal = memo(function StudentDetailModal({
           <Section title="CONTACT" icon="phone" theme={theme}>
             <InfoGrid rows={[
               { label: "Mobile", value: student.mobileNumber || student.phone || student.contactNumber || "—" },
-              { label: "Emergency", value: student.emergencyContact || "—" },
             ]} theme={theme} />
           </Section>
 
@@ -702,27 +701,6 @@ function StudentHostelView({ theme, insets }: { theme: any; insets: any }) {
               </View>
             </AnimatedCard>
 
-            {/* Contacts */}
-            {(contacts as any[]).length > 0 && (
-              <AnimatedCard style={stv.card}>
-                <View style={stv.cardHeader}>
-                  <View style={[stv.cardIcon, { backgroundColor: "#f59e0b20" }]}>
-                    <Feather name="phone-call" size={18} color="#f59e0b" />
-                  </View>
-                  <Text style={[stv.cardTitle, { color: theme.text }]}>Hostel Contacts</Text>
-                </View>
-                {(contacts as any[]).map((c, i, arr) => (
-                  <View key={c.id} style={[stv.infoRow, i < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
-                    <Feather name="user" size={13} color="#f59e0b" />
-                    <View style={{ flex: 1 }}>
-                      <Text style={[stv.infoValue, { color: theme.text }]}>{c.name}</Text>
-                      <Text style={[{ fontSize: 11, fontFamily: "Inter_400Regular", color: theme.textTertiary }]}>{c.role}</Text>
-                    </View>
-                    <Text style={[stv.infoValue, { color: theme.tint }]}>{c.phone}</Text>
-                  </View>
-                ))}
-              </AnimatedCard>
-            )}
           </>
         )}
       </ScrollView>

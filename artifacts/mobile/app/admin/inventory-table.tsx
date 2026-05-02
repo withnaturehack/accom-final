@@ -63,7 +63,6 @@ function InventoryStudentModal({ student, visible, onClose, theme, canRevoke, on
   const meta = STATUS_META[rawStatus];
   const phone = student.mobileNumber || student.contactNumber || student.phone || "";
   const email = student.email || "";
-  const emergency = student.emergencyContact || "";
   const hostelName = student.hostelName || student.hostelId || "";
   const roomNumber = student.roomNumber || "";
 
@@ -254,7 +253,6 @@ function InventoryStudentModal({ student, visible, onClose, theme, canRevoke, on
               {!!student.gender && <InfoRow icon="user" label="Gender" value={student.gender} theme={theme} />}
               {!!student.age && <InfoRow icon="calendar" label="Age" value={String(student.age)} theme={theme} />}
               {!!(student.allottedMess || student.assignedMess) && <InfoRow icon="coffee" label="Mess" value={student.allottedMess || student.assignedMess} theme={theme} />}
-              {!!emergency && <InfoRow icon="alert-circle" label="Emergency" value={emergency} theme={theme} />}
             </View>
 
             {!!phone && (

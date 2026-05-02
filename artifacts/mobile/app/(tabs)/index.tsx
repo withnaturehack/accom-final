@@ -156,8 +156,8 @@ export default function HomeScreen() {
   const { data: announcements, refetch: refetchAnn, isLoading: annLoading } = useQuery({
     queryKey: ["announcements"],
     queryFn: () => safe(() => request("/announcements"), []),
-    staleTime: 30000,
-    refetchInterval: 60000,
+    staleTime: 10000,
+    refetchInterval: 15000,
     placeholderData: keepPreviousData,
     retry: 1,
   });

@@ -252,7 +252,6 @@ function StudentDetailModal({ student, visible, onClose, theme, onUpdated }: {
                   { icon: "map-pin", label: "Area", value: s?.area },
                   { icon: "book", label: "DS/ES", value: s?.dsEs },
                   { icon: "phone", label: "Mobile", value: s?.mobileNumber || s?.contactNumber || s?.phone },
-                  { icon: "alert-circle", label: "Emergency", value: s?.emergencyContact },
                   { icon: "file-text", label: "Remarks", value: s?.remarks },
                 ].filter(f => f.value).map((f, i, arr) => (
                   <View key={f.label} style={[sd.row, i < arr.length - 1 && { borderBottomWidth: 1, borderBottomColor: theme.border }]}>
@@ -500,7 +499,7 @@ export default function MasterTableScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
       const dataToExport = (hostelFilter || filter !== "all" || search.trim()) ? filtered : scopedArr;
-      const headers = ["Name", "Roll Number", "Email", "Hostel", "Room", "Mess", "Gender", "Age", "DS/ES", "Area", "Mobile", "Emergency", "Attendance", "Check-in", "Check-out", "Mattress", "Bedsheet", "Pillow"];
+      const headers = ["Name", "Roll Number", "Email", "Hostel", "Room", "Mess", "Gender", "Age", "DS/ES", "Area", "Mobile", "Attendance", "Check-in", "Check-out", "Mattress", "Bedsheet", "Pillow"];
       const rows = dataToExport.map((s: any) => {
         const isIn = !!s.checkInTime && !s.checkOutTime;
         const isOut = !!s.checkOutTime;
@@ -513,7 +512,6 @@ export default function MasterTableScreen() {
           s.allottedMess || s.assignedMess || "",
           s.gender || "", s.age || "", s.dsEs || "", s.area || "",
           s.mobileNumber || s.contactNumber || s.phone || "",
-          s.emergencyContact || "",
           isOut ? "Checked Out" : isIn ? "In Campus" : "Not Checked In",
           s.checkInTime ? formatDT(s.checkInTime) : "",
           s.checkOutTime ? formatDT(s.checkOutTime) : "",

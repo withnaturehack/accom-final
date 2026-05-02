@@ -28,7 +28,6 @@ const ROLE_COLORS: Record<string, string> = {
 function StudentSubModal({ student, visible, onClose, theme }: { student: any; visible: boolean; onClose: () => void; theme: any }) {
   if (!student) return null;
   const phone = student.mobileNumber || student.contactNumber || student.phone || "";
-  const emergency = student.emergencyContact || "";
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
       <Pressable style={ssd.overlay} onPress={onClose}>
@@ -81,13 +80,6 @@ function StudentSubModal({ student, visible, onClose, theme }: { student: any; v
                 <Feather name="phone" size={13} color="#3b82f6" />
                 <Text style={[ssd.infoLabel, { color: theme.textSecondary }]}>Mobile</Text>
                 <Text style={[ssd.infoVal, { color: theme.text }]}>{phone}</Text>
-              </View>
-            )}
-            {!!emergency && (
-              <View style={ssd.infoRow}>
-                <Feather name="alert-circle" size={13} color="#ef4444" />
-                <Text style={[ssd.infoLabel, { color: theme.textSecondary }]}>Emergency</Text>
-                <Text style={[ssd.infoVal, { color: theme.text }]}>{emergency}</Text>
               </View>
             )}
             {!!(student.dsEs) && (
@@ -427,7 +419,7 @@ function HostelDetailModal({ hostel, visible, onClose, theme, request, isSuperAd
 
   const handleDownloadReport = async () => {
     Haptics.selectionAsync();
-    const headers = ["Name", "Roll Number", "Room", "Gender", "Age", "Mess", "Mobile", "Emergency"].join(",");
+    const headers = ["Name", "Roll Number", "Room", "Gender", "Age", "Mess", "Mobile"].join(",");
     const rows = studentList.map((s: any) => [
       `"${(s.name || "").replace(/"/g, '""')}"`,
       s.rollNumber || "",
@@ -436,7 +428,6 @@ function HostelDetailModal({ hostel, visible, onClose, theme, request, isSuperAd
       s.age || "",
       s.allottedMess || "",
       s.mobileNumber || "",
-      s.emergencyContact || "",
     ].join(","));
     const csv = [headers, ...rows].join("\n");
 
@@ -687,28 +678,6 @@ function HostelDetailModal({ hostel, visible, onClose, theme, request, isSuperAd
             </>
           )}
 
-          {/* Contacts */}
-          {(contacts as any[]).length > 0 && (
-            <>
-              <Text style={[styles.sectionLabel, { color: theme.text, marginTop: 20 }]}>Emergency Contacts</Text>
-              {(contacts as any[]).map((c: any) => (
-                <Pressable
-                  key={c.id}
-                  onPress={() => { if (c.phone) { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); Linking.openURL(`tel:${c.phone}`); } }}
-                  style={({ pressed }) => [styles.studentRow, { backgroundColor: theme.surface, borderColor: theme.border, opacity: pressed ? 0.85 : 1 }]}
-                >
-                  <View style={[styles.studentAvatar, { backgroundColor: "#22c55e20" }]}>
-                    <Feather name="phone-call" size={16} color="#22c55e" />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.studentName, { color: theme.text }]}>{c.name}</Text>
-                    <Text style={[styles.studentMeta, { color: theme.textSecondary }]}>{c.role} · {c.phone}</Text>
-                  </View>
-                  {!!c.phone && <Feather name="phone" size={14} color="#22c55e" />}
-                </Pressable>
-              ))}
-            </>
-          )}
         </ScrollView>
 
         <StudentSubModal
@@ -863,9 +832,6 @@ export default function HostelsAdminScreen() {
         </Pressable>
         <Text style={[styles.headerTitle, { color: theme.text }]}>Hostels</Text>
         <View style={{ flexDirection: "row", gap: 8 }}>
-          <Pressable onPress={() => setShowContact(true)} style={[styles.iconBtn, { backgroundColor: "#22c55e" }]}>
-            <Feather name="phone-call" size={16} color="#fff" />
-          </Pressable>
           {isSuperAdmin && (
             <Pressable onPress={() => setShowHostel(true)} style={[styles.iconBtn, { backgroundColor: theme.tint }]}>
               <Feather name="plus" size={18} color="#fff" />
@@ -993,7 +959,7 @@ export default function HostelsAdminScreen() {
       <Modal visible={showContact} animationType="slide" presentationStyle={Platform.OS === "ios" ? "formSheet" : "overFullScreen"}>
         <View style={[styles.modal, { backgroundColor: theme.background }]}>
           <View style={[styles.modalHeader, { borderColor: theme.border }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Add Emergency Contact</Text>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Add Hostel Contact</Text>
             <Pressable onPress={() => setShowContact(false)}><Feather name="x" size={24} color={theme.text} /></Pressable>
           </View>
           <ScrollView contentContainerStyle={styles.modalBody} keyboardShouldPersistTaps="handled">

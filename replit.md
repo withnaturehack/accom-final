@@ -1,4 +1,4 @@
-# CampusOps Expo — IIT Madras BS Student Portal
+# CampusOps — IIT Madras BS Student Hostel Portal
 
 ## Project Overview
 

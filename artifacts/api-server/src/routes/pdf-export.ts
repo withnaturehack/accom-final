@@ -15,48 +15,58 @@ function addHeader(doc: any, title: string) {
   doc.moveDown(0.5);
 }
 
+function trunc(s: string | null | undefined, n: number): string {
+  if (!s) return "—";
+  return s.length > n ? s.slice(0, n - 1) + "…" : s;
+}
+
 // GET /api/pdf/students — PDF list of all students
 router.get("/students", requireAdmin, async (_req, res) => {
   const students = await db.select({
     name: usersTable.name,
-    email: usersTable.email,
     rollNumber: usersTable.rollNumber,
-    phone: usersTable.phone,
     room: usersTable.roomNumber,
     mess: usersTable.assignedMess,
-    area: usersTable.area,
     hostelName: hostelsTable.name,
     attendance: usersTable.attendanceStatus,
   }).from(usersTable)
     .leftJoin(hostelsTable, eq(usersTable.hostelId, hostelsTable.id))
     .where(eq(usersTable.role, "student"));
 
-  const doc = new PDFDocument({ margin: 50, size: "A4" });
+  // Landscape A4 for wider table
+  const doc = new PDFDocument({ margin: 40, size: [841, 595] });
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", "attachment; filename=students.pdf");
   doc.pipe(res);
 
   addHeader(doc, `Students Report (${students.length} total)`);
 
-  // Table
-  const colW = [140, 90, 70, 70, 80, 80];
+  // Usable width: 841 - 80 = 761pt
+  const colW = [185, 110, 50, 200, 165, 51];
   const headers = ["Name", "Roll Number", "Room", "Mess", "Hostel", "Status"];
+  const tableLeft = 40;
   let y = doc.y;
-  let x = 50;
+  let x = tableLeft;
 
-  // Header row
   doc.fontSize(9).fillColor("#1E40AF");
   headers.forEach((h, i) => { doc.text(h, x, y, { width: colW[i], lineBreak: false }); x += colW[i]; });
   doc.moveDown(0.5);
   y = doc.y;
-  doc.moveTo(50, y).lineTo(545, y).strokeColor("#93C5FD").stroke();
+  doc.moveTo(tableLeft, y).lineTo(tableLeft + 761, y).strokeColor("#93C5FD").stroke();
   doc.moveDown(0.3);
 
   students.forEach((s, idx) => {
-    if (doc.y > 750) { doc.addPage(); }
+    if (doc.y > 530) { doc.addPage(); }
     y = doc.y;
-    x = 50;
-    const row = [s.name || "", s.rollNumber || "—", s.room || "—", s.mess || "—", s.hostelName || "—", s.attendance === "entered" ? "In ✓" : "Out"];
+    x = tableLeft;
+    const row = [
+      trunc(s.name, 30),
+      trunc(s.rollNumber, 18),
+      trunc(s.room, 8),
+      trunc(s.mess, 32),
+      trunc(s.hostelName, 26),
+      s.attendance === "entered" ? "In ✓" : "Out",
+    ];
     doc.fontSize(8).fillColor(idx % 2 === 0 ? "#0F172A" : "#334155");
     row.forEach((val, i) => { doc.text(val, x, y, { width: colW[i], lineBreak: false }); x += colW[i]; });
     doc.moveDown(0.5);
@@ -82,7 +92,7 @@ router.get("/attendance", requireAdmin, async (_req, res) => {
     .where(eq(attendanceTable.date, date));
 
   const entered = records.filter(r => r.status === "entered").length;
-  const doc = new PDFDocument({ margin: 50, size: "A4" });
+  const doc = new PDFDocument({ margin: 40, size: [841, 595] });
   res.setHeader("Content-Type", "application/pdf");
   res.setHeader("Content-Disposition", `attachment; filename=attendance-${date}.pdf`);
   doc.pipe(res);
@@ -91,24 +101,25 @@ router.get("/attendance", requireAdmin, async (_req, res) => {
   doc.fontSize(10).fillColor("#16A34A").text(`Entered: ${entered}/${records.length}`, { align: "right" });
   doc.moveDown(0.5);
 
-  const colW = [140, 90, 70, 70, 80, 80];
+  const colW = [185, 110, 50, 200, 165, 51];
   const headers = ["Student Name", "Roll Number", "Room", "Mess", "Hostel", "Status"];
+  const tableLeft = 40;
   let y = doc.y;
-  let x = 50;
+  let x = tableLeft;
 
   doc.fontSize(9).fillColor("#1E40AF");
   headers.forEach((h, i) => { doc.text(h, x, y, { width: colW[i], lineBreak: false }); x += colW[i]; });
   doc.moveDown(0.5);
   y = doc.y;
-  doc.moveTo(50, y).lineTo(545, y).strokeColor("#93C5FD").stroke();
+  doc.moveTo(tableLeft, y).lineTo(tableLeft + 761, y).strokeColor("#93C5FD").stroke();
   doc.moveDown(0.3);
 
   records.forEach((r, idx) => {
-    if (doc.y > 750) { doc.addPage(); }
+    if (doc.y > 530) { doc.addPage(); }
     y = doc.y;
-    x = 50;
+    x = tableLeft;
     const color = r.status === "entered" ? "#15803D" : "#DC2626";
-    const row = [r.studentName || "", r.rollNumber || "—", r.room || "—", r.mess || "—", r.hostelName || "—", r.status === "entered" ? "✓ In" : "✗ Out"];
+    const row = [trunc(r.studentName, 30), trunc(r.rollNumber, 18), trunc(r.room, 8), trunc(r.mess, 32), trunc(r.hostelName, 26), r.status === "entered" ? "✓ In" : "✗ Out"];
     doc.fontSize(8);
     row.forEach((val, i) => {
       doc.fillColor(i === 5 ? color : (idx % 2 === 0 ? "#0F172A" : "#334155")).text(val, x, y, { width: colW[i], lineBreak: false });

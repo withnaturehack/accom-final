@@ -41,13 +41,23 @@ function StudentNotifications({ theme, user, onUnreadCount }: { theme: any; user
   const request = useApiRequest();
   const queryClient = useQueryClient();
   const [refreshing, setRefreshing] = React.useState(false);
+  const prevUnreadCount = React.useRef<number>(-1);
 
   const { data: notifications, isLoading, refetch } = useQuery({
     queryKey: ["notifications"],
     queryFn: () => request("/notifications"),
     enabled: !!user,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
+
+  // Vibrate when new unread notifications arrive
+  React.useEffect(() => {
+    const count = notifications?.filter((n: any) => !n.isRead).length ?? 0;
+    if (prevUnreadCount.current >= 0 && count > prevUnreadCount.current) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    }
+    prevUnreadCount.current = count;
+  }, [notifications]);
 
   const markReadMutation = useMutation({
     mutationFn: (id: string) => request(`/notifications/${id}/read`, { method: "PATCH" }),
@@ -161,13 +171,24 @@ function StudentNotifications({ theme, user, onUnreadCount }: { theme: any; user
 function StaffAnnouncements({ theme, user }: { theme: any; user: any }) {
   const request = useApiRequest();
   const [refreshing, setRefreshing] = React.useState(false);
+  const prevCount = React.useRef<number>(-1);
 
   const { data: announcements, isLoading, refetch } = useQuery({
     queryKey: ["announcements"],
     queryFn: () => request("/announcements"),
     enabled: !!user,
-    refetchInterval: 30000,
+    refetchInterval: 15000,
   });
+
+  // Vibrate when a new announcement arrives live
+  React.useEffect(() => {
+    const list: any[] = Array.isArray(announcements) ? announcements : [];
+    const count = list.length;
+    if (prevCount.current >= 0 && count > prevCount.current) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    }
+    prevCount.current = count;
+  }, [announcements]);
 
   const onRefresh = async () => {
     setRefreshing(true);
