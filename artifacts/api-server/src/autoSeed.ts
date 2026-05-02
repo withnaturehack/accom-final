@@ -24,7 +24,7 @@ export async function autoSeed() {
   try {
     // --- Hostels ---
     const existingHostels = await db.select().from(hostelsTable);
-    let hostelIds: string[] = existingHostels.map(h => h.id);
+    let hostelIds: string[] = existingHostels.map((h: { id: string }) => h.id);
 
     if (existingHostels.length === 0) {
       for (const name of REAL_HOSTELS) {
@@ -146,7 +146,7 @@ export async function autoSeed() {
       const students = await db.select({ id: usersTable.id, hostelId: usersTable.hostelId })
         .from(usersTable).where(eq(usersTable.role, "student"));
       const existingInv = await db.select({ studentId: studentInventoryTable.studentId }).from(studentInventoryTable);
-      const invSet = new Set(existingInv.map(i => i.studentId));
+      const invSet = new Set(existingInv.map((i: { studentId: string }) => i.studentId));
 
       let created = 0;
       for (const s of students.slice(0, 40)) {

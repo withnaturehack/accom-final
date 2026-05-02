@@ -205,6 +205,16 @@ function AttendanceModal({
     doAction("revoke-checkin", () => request(`/checkins/${student.id}/today`, { method: "DELETE" }));
   };
 
+  const revokeCheckout = async () => {
+    if (!checkin) return;
+    const ok = await confirmAsync(
+      "Revoke Checkout?",
+      "This will undo the checkout and mark the student as still checked in.",
+    );
+    if (!ok) return;
+    doAction("revoke-checkout", () => request(`/checkins/${checkin.id}/revoke-checkout`, { method: "PATCH", body: JSON.stringify({}) }));
+  };
+
   const revokeItem = async (item: "mattress" | "bedsheet" | "pillow") => {
     if (!student) return;
     const ok = await confirmAsync(
@@ -427,15 +437,32 @@ function AttendanceModal({
               {/* STEP 8: Check Out */}
               <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>STEP 8 — CHECK OUT</Text>
               <View style={styles.stepRow}>
-                <StepButton
-                  label={isCheckedOut ? "Checked Out" : "Check Out"}
-                  icon="log-out"
-                  done={isCheckedOut}
-                  disabled={!canCheckOut || isCheckedOut}
-                  onPress={checkOut}
-                  loading={actionLoading === "checkout"}
-                  theme={theme}
-                />
+                {isCheckedOut ? (
+                  <Pressable
+                    onPress={revokeCheckout}
+                    disabled={!!actionLoading}
+                    style={[styles.stepBtn, { backgroundColor: "#6366f1", borderColor: "#4f46e5", opacity: actionLoading ? 0.6 : 1, flex: 1 }]}
+                  >
+                    {actionLoading === "revoke-checkout" ? (
+                      <ActivityIndicator color="#fff" size="small" />
+                    ) : (
+                      <>
+                        <Feather name="check-circle" size={14} color="#fff" />
+                        <Text style={[styles.stepBtnText, { color: "#fff" }]}>✓ Checked Out · Tap to Revoke</Text>
+                      </>
+                    )}
+                  </Pressable>
+                ) : (
+                  <StepButton
+                    label="Check Out"
+                    icon="log-out"
+                    done={false}
+                    disabled={!canCheckOut}
+                    onPress={checkOut}
+                    loading={actionLoading === "checkout"}
+                    theme={theme}
+                  />
+                )}
               </View>
               {isCheckedIn && hasPendingGivenItems && !isCheckedOut && (
                 <Text style={[styles.sectionHint, { color: "#ef4444" }]}>Given but not submitted inventory is marked in red.</Text>

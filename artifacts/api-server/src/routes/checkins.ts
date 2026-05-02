@@ -266,6 +266,55 @@ router.delete("/:studentId/today", requireVolunteer, async (req: AuthRequest, re
   res.json({ success: true, message: "Check-in and inventory cleared for today" });
 });
 
+// PATCH /api/checkins/:id/revoke-checkout — undo a checkout, put student back to checked-in
+router.patch("/:id/revoke-checkout", requireVolunteer, async (req: AuthRequest, res) => {
+  const [caller] = await db.select({
+    role: usersTable.role,
+    hostelId: usersTable.hostelId,
+    assignedHostelIds: usersTable.assignedHostelIds,
+  }).from(usersTable).where(eq(usersTable.id, req.userId!));
+  if (!caller) { res.status(401).json({ message: "Unauthorized" }); return; }
+  const scope = scopedHostels(caller);
+
+  const [checkin] = await db.select().from(checkinsTable).where(eq(checkinsTable.id, String(req.params.id)));
+  if (!checkin) { res.status(404).json({ message: "Checkin record not found" }); return; }
+  if (!checkin.checkOutTime) { res.status(400).json({ message: "Student has not checked out yet" }); return; }
+  if (!canAccessHostel(scope, checkin.hostelId)) { res.status(403).json({ message: "Forbidden" }); return; }
+
+  const [record] = await db.update(checkinsTable)
+    .set({ checkOutTime: null })
+    .where(eq(checkinsTable.id, String(req.params.id)))
+    .returning();
+
+  await db.update(usersTable)
+    .set({ attendanceStatus: "entered" })
+    .where(eq(usersTable.id, checkin.studentId));
+
+  const [existingAtt] = await db.select().from(attendanceTable)
+    .where(and(eq(attendanceTable.studentId, checkin.studentId), eq(attendanceTable.date, checkin.date)));
+
+  if (existingAtt) {
+    await db.update(attendanceTable)
+      .set({ status: "entered", updatedAt: new Date() })
+      .where(eq(attendanceTable.id, existingAtt.id));
+  }
+
+  await db.insert(timeLogsTable).values({
+    id: generateId(),
+    userId: req.userId!,
+    type: "checkin",
+    note: `Revoked checkout for student ${checkin.studentId}`,
+    hostelId: checkin.hostelId || null,
+  });
+
+  res.json({
+    ...record,
+    checkInTime: record.checkInTime?.toISOString() || null,
+    checkOutTime: null,
+    createdAt: record.createdAt.toISOString(),
+  });
+});
+
 // GET /api/checkins/:studentId/today — get today's check-in status for a student
 router.get("/:studentId/today", requireVolunteer, async (req: AuthRequest, res) => {
   const studentId = String(req.params.studentId);
@@ -359,7 +408,7 @@ router.get("/", requireVolunteer, async (req: AuthRequest, res) => {
     .limit(limit)
     .offset(offset);
 
-  res.json(rows.map(r => ({
+  res.json(rows.map((r: typeof rows[number]) => ({
     ...r,
     checkInTime: r.checkInTime?.toISOString() || null,
     checkOutTime: r.checkOutTime?.toISOString() || null,
@@ -384,17 +433,17 @@ router.get("/stats", requireVolunteer, async (req: AuthRequest, res) => {
   const relevant = caller.role === "superadmin"
     ? all
     : caller.role === "volunteer"
-      ? all.filter(r => r.hostelId === caller.hostelId)
+      ? all.filter((r: typeof all[number]) => r.hostelId === caller.hostelId)
       : (() => {
     const scoped = Array.from(new Set([...(JSON.parse(caller.assignedHostelIds || "[]") as string[]), caller.hostelId || ""].filter(Boolean)));
-        return scoped.length ? all.filter(r => scoped.includes(r.hostelId || "")) : [];
+        return scoped.length ? all.filter((r: typeof all[number]) => scoped.includes(r.hostelId || "")) : [];
       })();
 
   res.json({
     date,
     total: relevant.length,
     checkedIn: relevant.length,
-    checkedOut: relevant.filter(r => !!r.checkOutTime).length,
+    checkedOut: relevant.filter((r: typeof all[number]) => !!r.checkOutTime).length,
   });
 });
 
