@@ -31,6 +31,15 @@ interface Student {
   attendanceStatus?: string;
   checkInTime?: string | null;
   checkOutTime?: string | null;
+  inventory?: {
+    mattress: boolean;
+    bedsheet: boolean;
+    pillow: boolean;
+    mattressSubmitted: boolean;
+    bedsheetSubmitted: boolean;
+    pillowSubmitted: boolean;
+    inventoryLocked: boolean;
+  };
 }
 
 function formatListTime(ts?: string | null): string {
@@ -130,7 +139,7 @@ function AttendanceModal({
     if (!visible || !student) return;
     const timer = setInterval(() => {
       loadState({ silent: true });
-    }, 5000);
+    }, 3000);
     return () => clearInterval(timer);
   }, [visible, student, loadState]);
 
@@ -150,9 +159,10 @@ function AttendanceModal({
       const next = await loadState({ silent: true });
       const nextCheckin = next?.checkin ?? null;
       onDataChanged(student.id, {
-        attendanceStatus: nextCheckin && !nextCheckin.checkOutTime ? "entered" : "not_entered",
+        attendanceStatus: nextCheckin && !nextCheckin.checkOutTime ? "entered" : nextCheckin?.checkOutTime ? "exited" : "not_entered",
         checkInTime: nextCheckin?.checkInTime ?? null,
         checkOutTime: nextCheckin?.checkOutTime ?? null,
+        inventory: next?.inventory ?? undefined,
       });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: any) {
@@ -637,6 +647,11 @@ function StudentSelfView({ theme, user, request }: { theme: any; user: any; requ
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    const timer = setInterval(() => { load(); }, 5000);
+    return () => clearInterval(timer);
+  }, [load]);
+
   const onRefresh = async () => { setRefreshing(true); await load(); setRefreshing(false); };
 
   const checkin = state?.checkin;
@@ -829,7 +844,7 @@ export default function AttendanceTab() {
     if (isStudent || !canWork || !isFocused) return;
     const timer = setInterval(() => {
       fetchStudents(true, true);
-    }, 30000);
+    }, 10000);
     return () => clearInterval(timer);
   }, [isStudent, fetchStudents, canWork, isFocused]);
 
