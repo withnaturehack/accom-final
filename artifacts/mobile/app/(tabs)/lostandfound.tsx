@@ -331,7 +331,7 @@ function AttendanceModal({
               {/* STEP 1: Check In / Revoke */}
               <Text style={[styles.sectionLabel, { color: theme.textSecondary }]}>STEP 1 — CHECK IN</Text>
               <View style={styles.stepRow}>
-                {isCheckedIn && !isCheckedOut ? (
+                {!!checkin ? (
                   <Pressable
                     onPress={revokeCheckin}
                     disabled={!!actionLoading}
@@ -348,10 +348,10 @@ function AttendanceModal({
                   </Pressable>
                 ) : (
                   <StepButton
-                    label={isCheckedOut ? "Checked Out" : "Check In"}
+                    label="Check In"
                     icon="log-in"
-                    done={isCheckedOut}
-                    disabled={isCheckedOut}
+                    done={false}
+                    disabled={false}
                     onPress={checkIn}
                     loading={actionLoading === "checkin"}
                     theme={theme}
